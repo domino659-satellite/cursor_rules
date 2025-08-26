@@ -1,0 +1,43 @@
+---
+description: APPLY Design Patterns WHENEVER solving common software design problems
+alwaysApply: true
+---
+
+Creational Patterns:
+- Use Factory for object creation with complex logic
+- Use Builder for objects with many optional parameters
+- Use Singleton sparingly, prefer dependency injection
+- Use Prototype for expensive object cloning
+
+Structural Patterns:
+- Use Adapter for incompatible interfaces
+- Use Bridge to separate abstraction from implementation
+- Use Composite for tree-like structures
+- Use Decorator for adding behavior without inheritance
+- Use Facade to simplify complex subsystems
+- Use Flyweight for memory optimization with shared objects
+- Use Proxy for controlled access to objects
+
+Behavioral Patterns:
+- Use Chain of Responsibility for request processing
+- Use Command to encapsulate requests as objects
+- Use Iterator for collection traversal
+- Use Mediator to reduce coupling between components
+- Use Observer for event-driven communication
+- Use State for object behavior changes
+- Use Strategy for interchangeable algorithms
+- Use Template Method for algorithm skeletons
+- Use Visitor for operations on object structures
+
+Pattern Selection:
+- Choose the simplest pattern that solves the problem
+- Don't over-engineer with unnecessary patterns
+- Consider maintenance and readability over cleverness
+- Document why a pattern was chosen
+- Refactor to patterns when code duplication emerges
+
+Anti-Patterns to Avoid:
+- Don't use patterns just because they exist
+- Avoid God Objects (violating Single Responsibility)
+- Don't create unnecessary abstractions
+- Avoid premature optimization with patterns

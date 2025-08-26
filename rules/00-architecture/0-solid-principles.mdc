@@ -1,0 +1,41 @@
+---
+description: APPLY SOLID principles WHENEVER designing classes and modules
+alwaysApply: true
+---
+
+Single Responsibility Principle (SRP):
+- One class should have one reason to change
+- Each class should have a single, well-defined purpose
+- If a class has multiple responsibilities, split it
+- Ask: "What is the one thing this class does?"
+
+Open/Closed Principle (OCP):
+- Open for extension, closed for modification
+- Use inheritance, composition, or interfaces for new behavior
+- Don't modify existing, tested code
+- Design with future changes in mind
+
+Liskov Substitution Principle (LSP):
+- Subtypes must be substitutable for their base types
+- Derived classes must not break base class contracts
+- Don't override methods to do nothing or throw errors
+- Maintain behavioral compatibility
+
+Interface Segregation Principle (ISP):
+- Clients shouldn't depend on interfaces they don't use
+- Keep interfaces small and focused
+- Prefer multiple specific interfaces over one general interface
+- Don't force clients to implement unused methods
+
+Dependency Inversion Principle (DIP):
+- High-level modules shouldn't depend on low-level modules
+- Both should depend on abstractions
+- Abstractions shouldn't depend on details
+- Use dependency injection and interfaces
+
+Implementation Guidelines:
+- Start with SRP - it's the foundation
+- Use composition over inheritance when possible
+- Design interfaces based on client needs
+- Write code that's easy to extend, not modify
+- Test that derived classes can replace base classes

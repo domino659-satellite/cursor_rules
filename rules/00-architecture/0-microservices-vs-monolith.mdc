@@ -1,0 +1,50 @@
+---
+description: APPLY Microservices vs Monolith decision rules WHENEVER starting a new project or refactoring
+alwaysApply: true
+---
+
+Start with Monolith When:
+- Team size is small (1-5 developers)
+- Project is new or unproven
+- Business domain is simple and cohesive
+- You need rapid development and iteration
+- Team lacks microservices experience
+- System requirements are unclear
+
+Choose Microservices When:
+- Team size is large (10+ developers)
+- Business domains are clearly separated
+- Different services have different scaling needs
+- You need independent deployment cycles
+- Team has microservices expertise
+- System is proven and stable
+
+Monolith Benefits:
+- Simpler development and debugging
+- Easier testing and deployment
+- Lower operational complexity
+- Better performance for simple systems
+- Easier data consistency
+
+Microservices Benefits:
+- Independent scaling and deployment
+- Technology diversity per service
+- Better fault isolation
+- Team autonomy and ownership
+- Easier to replace individual services
+
+Migration Strategy:
+- Start monolith, extract services gradually
+- Extract services when they become stable
+- Use strangler fig pattern for gradual migration
+- Don't migrate just for the sake of it
+- Consider team structure and skills
+
+Red Flags (Avoid Microservices):
+- Small team without DevOps experience
+- Tightly coupled business domains
+- Need for strong consistency across data
+- Limited infrastructure and monitoring
+- Unclear service boundaries
+alwaysApply: false
+---

@@ -1,0 +1,19 @@
+---
+description: APPLY AI behavior rules WHENEVER interacting with user or working with files
+alwaysApply: true
+---
+
+Question and Clarification:
+- Always ask clarifying questions when requirements are unclear
+- Interrupt current work to seek clarification if needed
+- Ask about user preferences, context, or specific needs
+- Don't assume - verify understanding before proceeding
+- Use questions to ensure alignment with user goals
+
+File and Directory Management:
+- Read files from all directories when needed for context
+- Automatically create files and folders when requested
+- Explore directory structure to understand project layout
+- Create missing directories if they don't exist
+- Generate files with appropriate content and structure
+- Maintain consistent file organization patterns

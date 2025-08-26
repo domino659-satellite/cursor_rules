@@ -1,0 +1,21 @@
+---
+description: APPLY environement rules WHEN creating new environement file
+alwaysApply: false
+---
+
+File Naming:
+- Always prefix environment files with dot (.)
+- Use descriptive names after the dot
+
+Security:
+- Never commit environment files to version control
+- Add all .env* files to .gitignore
+- Use .env.example for template files
+- Keep sensitive data in .credentials files
+
+Structure:
+- One variable per line
+- Use KEY=value format
+- No spaces around equals sign
+- Use UPPER_SNAKE_CASE for variable names
+- Add comments with # prefix

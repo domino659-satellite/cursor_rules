@@ -1,0 +1,55 @@
+---
+description: APPLY Clean Architecture principles WHENEVER designing system architecture
+alwaysApply: true
+---
+
+Dependencies:
+- Dependencies always point inward
+- Outer layers depend on inner layers
+- Inner layers never know about outer layers
+
+Layers:
+- Entities (Domain): pure business rules, no external dependencies
+- Use Cases: orchestrate business rules, depend only on entities
+- Interface Adapters: data conversion, depend on use cases
+- Frameworks & Drivers: infrastructure, depend on adapters
+
+Dependency Inversion:
+- Define interfaces in inner layers
+- Implement interfaces in outer layers
+- Use dependency injection
+
+Single Responsibility:
+- One class = one responsibility
+- No business logic in controllers
+- No infrastructure logic in domain
+
+Framework Independence:
+- Business code doesn't depend on any framework
+- Frameworks are implementation details
+- Use abstractions for infrastructure
+
+Testability:
+- All external dependencies must be mockable
+- Unit tests must not depend on infrastructure
+- Test behavior, not implementation
+
+Database Independence:
+- Domain model doesn't know about database
+- Use repositories with interfaces
+- Database is an implementation detail
+
+UI Independence:
+- User interface is a detail
+- Business code works without UI
+- Controllers are adapters
+
+Folder Structure:
+- Organize by feature, not by technical layer
+- Clearly separate domain from infrastructure
+- Avoid cross-layer imports
+
+Validation:
+- Validate data at system boundaries
+- Entities must be in valid state
+- Use value objects to encapsulate validation logic
