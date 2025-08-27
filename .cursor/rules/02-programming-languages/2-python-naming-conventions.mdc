@@ -3,6 +3,7 @@ description:
 globs: **/*.py
 alwaysApply: false
 ---
+
 Classes and Exceptions:
 - Use PascalCase for class names
 - Use nouns or noun phrases for class names

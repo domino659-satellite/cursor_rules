@@ -1,0 +1,83 @@
+---
+description: APPLY documentation rules WHENEVER writing md files
+globs: **/*.md
+alwaysApply: false
+---
+# Documentation Standards
+
+## General Principles
+
+### Clarity and Conciseness
+- Write clear and brief documentation
+- Avoid verbosity - get straight to the point
+- Use accessible language for all developers
+- Include concrete examples when needed
+
+## README Structure
+
+### Required Sections
+1. **Project Header**: Name and short description with badges
+2. **File Structure** (📁): Main directories with brief descriptions
+3. **Functionality** (🚀): Main concept and architecture overview
+4. **Quick Start**: Installation and launch commands
+5. **Configuration** (⚙️): Essential environment variables
+6. **Documentation Links** (📚): Links to detailed guides
+
+### Length Rule
+- Main README: Maximum 150-200 lines
+- Split into separate files if exceeded
+
+## Writing Guidelines
+
+### Title Hierarchy
+- **H1 (#)**: Project title
+- **H2 (##)**: Main sections
+- **H3 (###)**: Subsections
+- **H4 (####)**: Technical details
+
+### Emoji Usage
+- Structure: 📁
+- Functionality: 🚀
+- Configuration: ⚙️
+- Documentation: 📚
+- Installation: 📖
+- Deployment: 🚀
+- Troubleshooting: 🔧
+- Contributing: 🤝
+
+### Code Formatting
+- Use appropriate markdown syntax
+- Highlight variables with `backticks`
+- Prefix shell commands with `$`
+- Use monofont for filenames
+
+## Documentation Splitting
+
+### When to Split
+- Complex functionality (>50 lines)
+- Specific user types
+- Advanced configuration options
+- Detailed procedures
+
+### Split File Structure
+- Section title
+- Overview
+- Usage examples
+- Configuration options
+- Troubleshooting
+
+## Maintenance
+
+### Regular Updates
+- Sync with source code
+- Verify links and examples
+- Test documented procedures
+- Review for clarity
+
+### Quality Validation
+- Peer review by another developer
+- Test all documented procedures
+- Ensure overall consistency
+- **Relecture** par un autre développeur
+- **Test** des procédures documentées
+- **Vérification** de la cohérence globale

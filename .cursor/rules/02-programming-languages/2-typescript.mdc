@@ -28,3 +28,4 @@ Lint & Error:
 
 Generics:
 - Use descriptive type parameter names
+- Catch errors as `unknown | Error`

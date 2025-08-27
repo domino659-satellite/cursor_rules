@@ -53,6 +53,8 @@ Sub rule 1:
 
 One line. Comprehensive description that provides full context and clearly indicates when this rule should be applied. Include key scenarios, impacted areas, and why following this rule is important. While being thorough, remain focused and relevant. The description should be detailed enough that the agent can confidently determine whether to apply the rule in any given situation.
 
+**IMPORTANT**: The description must clearly specify WHEN to apply the rule so Cursor knows exactly when to use this specific rule vs others. Include trigger words, contexts, and specific scenarios.
+
 #### Generate `globs`
 
 - Appropriate extension language based (e.g. `*.tsx` for React)

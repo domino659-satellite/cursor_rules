@@ -17,7 +17,7 @@ Length Limits (if possible, not mandatory):
 - Prefer max 30 lines per function
 - Prefer max 5 params per function
 - Prefer max 300 lines per file
-- Prefer max 10 sub-files per folderr
+- Prefer max 10 sub-files per folder
 
 Responsibilities:
 - One responsibility per file
@@ -28,6 +28,9 @@ Functions:
 Errors:
 - Fail fast
 - Throw errors early
+- Use custom domain errors
+- Translate errors to user language
+- Log errors in EN with error codes
 - Use custom domain errors
 - Translate errors to user language
 - Log errors in EN with error codes

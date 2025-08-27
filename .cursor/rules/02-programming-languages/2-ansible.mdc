@@ -1,0 +1,87 @@
+---
+description: APPLY Ansible variables rules WHENEVER using Ansible
+alwaysApply: false
+---
+# Ansible Standards - Variables and Best Practices
+
+## 1. Variable Hierarchy (increasing priority)
+
+### Default Variables (lowest priority)
+- `defaults/main.yml` in the role
+- Easily overridable default values
+
+### Facts Variables
+- Automatically collected from target system
+
+### Inventory Variables
+- `inv/*/hosts`
+- Scope: all hosts in inventory
+
+### Group Variables
+- `inv/*/group_vars/*.yml`
+- Scope: hosts in a specific group
+
+### Host Variables
+- `inv/*/host_vars/*.yml`
+- Scope: a specific host
+
+### Role Variables
+- `roles/vars/main.yml`
+- Scope: all tasks in the role
+
+### Task Variables
+- Defined in a specific task in the playbook
+- Scope: single task only
+
+### Block Variables
+- Defined in a block with `block`
+- Scope: all tasks in the block
+
+### Playbook Variables
+- `vars` section directly in the playbook
+- Scope: entire playbook
+
+### CLI Variables (highest priority)
+- `-e` or `--extra-vars` option with `ansible-playbook`
+- Example: `ansible-playbook playbook.yml -e "variable=value"`
+
+## 2. Security Rules
+
+### Principle of Least Privilege
+- Don't use `become: true` by default
+- Avoid automatic privilege escalation
+- Use `become: true` only when necessary
+- Prefer minimal required permissions
+
+## 3. Modular Architecture
+
+### Recommended Structure
+- **Default variables**: `defaults/main.yml` with empty lists
+- **Role variables**: `vars/main.yml` with fallback to global
+- **Inventory variables**: `group_vars/all.yml` for configuration
+
+### Fallback Pattern
+- `user_list: "{{ global_users_list | default(default_user_list) }}"`
+- Enables easy override without modifying the role
+
+## 4. Best Practices
+
+### Organization
+- Use `defaults` for default values
+- Avoid overriding at too many levels
+- Clearly document variable hierarchy
+- Prefer inventory variables for configuration
+
+### Benefits of Modular Approach
+- Reusability across different environments
+- Flexibility to override values
+- Maintainability with centralized configuration
+- Security of sensitive values in inventory
+
+## 5. General Rule
+
+**The closer a variable is defined to execution, the higher its priority.**
+
+- **Flexibility**: Default values can be easily overridden
+- **Maintainability**: Centralized configuration in inventory
+- **Security**: Sensitive values remain in inventory, not in code

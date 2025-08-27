@@ -1,0 +1,96 @@
+---
+description: APPLY logging rules WHENEVER implementing logging or generating files
+alwaysApply: false
+---
+# Logging and File Management Standards
+
+## 1. Core Principles
+
+### Log Quality
+- Include sufficient context in every log entry
+- Use appropriate levels: DEBUG, INFO, WARN, ERROR
+- Structured format for human and machine readability
+- Keep messages under 1000 characters
+
+### Traceability
+- Unique execution ID per run
+- UTC timestamps in ISO 8601 format
+- Track key steps and state transitions
+- Enable correlation across components
+
+## 2. Organization
+
+### Directory Structure
+- `logs/`: application logs, scripts, commands, archives
+- `output/`: reports, exports, temporary files
+- `backups/`: timestamped backup files
+
+### File Naming
+- Format: `YYYY-MM-DD_HH-MM-SS_[TYPE]_[DESCRIPTION].[EXTENSION]`
+- Example: `2024-01-15_14-30-25_backup_database.sql`
+
+## 3. Configuration
+
+### Core Variables
+- `config/logging.conf`: paths, retention, rotation, formats
+- Environment: LOG_LEVEL, LOG_DIR, LOG_TIMESTAMP_FORMAT
+- Default values with fallback mechanisms
+
+## 4. Implementation
+
+### Script Logging
+- Unique execution ID and timestamp per run
+- Format: `[timestamp] [script] [id] [level] message`
+- Log start/end, parameters, and key steps
+
+### Application Logging
+- Structured JSON with: timestamp, level, execution_id, component, action
+- Include metadata, duration, and user context
+- Python ContextLogger class for consistent implementation
+
+## 5. Lifecycle Management
+
+### Rotation and Retention
+- Automatic rotation by size (MB) and time (days)
+- Gzip compression after 7 days
+- Deletion after 30 days
+- Monthly archiving for long-term storage
+
+## 6. Best Practices
+
+### Do ✅
+- Include timestamps and execution context
+- Use structured logging formats
+- Implement automatic rotation
+- Archive with clear retention policies
+
+### Don't ❌
+- Log without context or timestamps
+- Store logs in working directories
+- Create overly verbose log entries
+- Store sensitive information in plain text
+
+## 7. Advanced Features
+
+### Performance
+- Avoid logging in performance-critical loops
+- Use conditional logging levels
+- Implement sampling for high-frequency events
+
+### Security
+- Mask sensitive data (emails, IPs, tokens)
+- Create audit logs for sensitive actions
+- Encrypt confidential log data
+- Set proper file permissions (600)
+
+### Monitoring and Integration
+- Track error rates and patterns
+- Enable ELK Stack compatibility
+- Support APM correlation
+- Export metrics to Prometheus/Grafana
+
+### Testing
+- Unit test logging behavior
+- Validate log formats
+- Mock loggers in tests
+- Verify rotation mechanisms

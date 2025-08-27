@@ -1,5 +1,5 @@
 ---
-description: 
+description: APPLY Python rules WHENEVER writing Python code
 globs: **/*.py
 alwaysApply: false
 ---
