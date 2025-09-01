@@ -1,0 +1,21 @@
+---
+- name: Setup Linux work station
+  hosts: shrine_azure
+
+  vars_files:
+    - ../../vault/connection
+    - ../../vault/user
+
+  roles:
+    # === SYSTÈME BASE ===
+    # - { role: system_upgrade }
+    # - { role: packages_generique }
+    - { role: zsh }
+    # - { role: ssh }
+
+    # === OUTILS DE DÉVELOPPEMENT ===
+    # - { role: git }
+    # - { role: vim }
+
+    # === UTILISATEUR ===
+    # - { role: user }

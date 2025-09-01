@@ -1,0 +1,277 @@
+# ─── ZSH INTERACTIVE CONFIGURATION ────────────────────────────────────────────
+
+# This file is sourced only for interactive shells
+# It should contain commands to set up aliases, functions, options, key bindings, etc.
+# Global Order: zshenv → zprofile → zshrc → zlogin
+
+# =============================================================================
+# 1. BASIC SETUP
+# =============================================================================
+
+# Set default pager if not specified
+READNULLCMD=${PAGER:-/usr/bin/pager}
+
+# Array to note missing features for diagnosis
+typeset -ga debian_missing_features
+
+# =============================================================================
+# 2. KEYBOARD CONFIGURATION
+# =============================================================================
+
+# Configure terminal mode management if conditions are met
+if [[ -z "${DEBIAN_PREVENT_KEYBOARD_CHANGES-}" ]] && [[ "$TERM" != 'emacs' ]]; then
+    # Terminal mode management with error handling
+    if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
+        # Use ZSH native zle hooks for better performance
+        function zle-line-init() {
+            emulate -L zsh
+            echoti smkx
+        }
+        function zle-line-finish() {
+            emulate -L zsh
+            echoti rmkx
+        }
+        zle -N zle-line-init
+        zle -N zle-line-finish
+    else
+        # Track missing features for diagnostics
+        for feature in smkx rmkx; do
+            (( ${+terminfo[$feature]} )) || debian_missing_features+=($feature)
+        done
+    fi
+fi
+
+# =============================================================================
+# 3. COMPLETION SYSTEM
+# =============================================================================
+
+# Clean corrupted completion cache if it exists
+if [[ -f "$HOME/.cache/zcompdump" ]] && ! zcompile -t "$HOME/.cache/zcompdump" >/dev/null 2>&1; then
+    rm -f "$HOME/.cache/zcompdump"
+    rm -f "$HOME/.cache/zcompdump.zwc"
+fi
+
+# Load run-help if available
+(( ${+aliases[run-help]} )) && unalias run-help
+autoload -Uz run-help
+
+# Initialize completion with advanced caching
+autoload -Uz compinit
+
+# Disable ambiguous completion mode
+unset list_ambiguous
+
+# Initialize completion with optimized cache location
+compinit -d ~/.cache/zcompdump
+
+# =============================================================================
+# 4. COMPLETION STYLES
+# =============================================================================
+
+# Core completion behavior
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' verbose true
+
+# Menu and selection
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+
+# Formatting and display
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' auto-description 'specify: %d'
+
+# Matching and case sensitivity
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' '+m:{A-Z}={a-z}'
+zstyle ':completion:*' accept-exact '*(N)'
+
+# Performance optimizations
+zstyle ':completion:*' cache-path ~/.cache/zsh/completion
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' use-perl on
+
+# Command-specific completions
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+zstyle ':completion:*:kill:*' insert-ids single
+
+# =============================================================================
+# 5. HISTORY CONFIGURATION
+# =============================================================================
+
+# History file location and size
+HISTFILE=~/.history
+HISTSIZE=5000
+SAVEHIST=8000
+
+# History options (consolidated)
+setopt hist_expire_dups_first hist_ignore_dups hist_ignore_space hist_verify share_history
+
+# =============================================================================
+# 6. KEY BINDINGS
+# =============================================================================
+
+# Use Emacs-style key bindings
+bindkey -e
+
+# Essential key bindings with consolidated approach
+local -A key_bindings=(
+    # Line navigation
+    '^A'     'beginning-of-line'              # Ctrl+A: beginning of line
+    '^[[1~'  'beginning-of-line'              # HOME (VT100/ANSI mode)
+    '^[[H'   'beginning-of-line'              # HOME (alternative sequence)
+    '^E'     'end-of-line'                    # Ctrl+E: end of line
+    '^[[4~'  'end-of-line'                    # END (VT100 mode)
+    '^[[F'   'end-of-line'                    # END (alternative sequence)
+    
+    # Character deletion
+    '^D'     'delete-char'                    # Ctrl+D: delete character under cursor
+    '^[[3~'  'delete-char'                    # DEL key
+    
+    # Insert mode
+    '^[[2~'  'overwrite-mode'                 # INS key: toggle insert/overwrite
+    
+    # History search
+    '^[[5~'  'history-search-backward'        # Page Up: search backward in history
+    '^[[6~'  'history-search-forward'         # Page Down: search forward in history
+    '^R'     'history-incremental-search-backward'  # Ctrl+R: incremental search
+    
+    # Word navigation
+    '^[[1;5C' 'forward-word'                  # Ctrl+Right: next word
+    '^[[1;5D' 'backward-word'                 # Ctrl+Left: previous word
+    '^[[3;5~' 'kill-word'                     # Ctrl+Del: delete next word
+    
+    # Undo
+    '^[[Z'   'undo'                           # Shift+Tab: undo
+)
+
+# Apply all key bindings efficiently
+for key_sequence in ${(k)key_bindings}; do
+    bindkey "$key_sequence" "${key_bindings[$key_sequence]}"
+done
+
+# Gnome-terminal specific bindings
+if [[ "$COLORTERM" == "gnome-terminal" ]]; then
+    bindkey '^[OH' beginning-of-line            # HOME (gnome-terminal specific)
+    bindkey '^[OF' end-of-line                  # END (gnome-terminal specific)
+fi
+
+# =============================================================================
+# 7. ALIASES
+# =============================================================================
+
+# File listing aliases with performance optimizations
+alias ls='ls --tabsize=0 --literal --color=auto --show-control-chars --human-readable --time-style="+%d/%m/%y %H:%M:%S" --group-directories-first'
+alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -CF'
+alias lla='ls -Al'
+
+# File management aliases (interactive mode)
+alias cp='cp --interactive'
+alias mv='mv --interactive'
+alias rm='rm --interactive'
+
+# Disk usage aliases
+alias df='df --human-readable'
+alias du='du --human-readable'
+
+# Directory navigation aliases
+alias ..='cd ..'
+alias s='cd ..'
+alias ...='cd ../..'
+
+# Terminal aliases
+alias c='clear -x'
+alias less='less --quiet'
+alias history='history -i 0'
+
+# Performance aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias diff='diff --color=auto'
+alias ip='ip --color=auto'
+
+# System maintenance aliases (Debian/Ubuntu)
+if command -v apt >/dev/null 2>&1; then
+    alias update='sudo apt update && sudo apt list --upgradable && echo "Run: sudo apt upgrade -y"'
+    alias upgrade='sudo apt update && sudo apt upgrade -y && sudo apt autoremove --purge -y'
+fi
+
+# =============================================================================
+# 8. ZSH OPTIONS
+# =============================================================================
+
+# Essential options for performance and usability
+setopt nobeep autocd interactivecomments magicequalsubst nonomatch notify numericglobsort promptsubst hist_verify clobber
+unsetopt hup
+
+# =============================================================================
+# 9. EXTERNAL MODULES
+# =============================================================================
+
+# Load Git integration script
+source /etc/zsh/zgit
+
+# Load remote terminal integration configuration
+source /etc/zsh/zremote
+
+# Load history search integration
+source /etc/zsh/zsh-history-search
+
+# Load auto-detection functions
+source /etc/zsh/zsh-auto-detect
+
+# # Functions for system management, package suggestions, and other utilities
+source /etc/zsh/zsh-system-utils
+
+# =============================================================================
+# 10. PROMPT CONFIGURATION
+# =============================================================================
+
+# Custom prompt configuration function
+
+VIRTUAL_ENV_DISABLE_PROMPT=1    # Disable automatic VENV display in prompt
+PROMPT_EOL_MARK=""              # Remove the end of line mark by default (%)
+NEWLINE_BEFORE_PROMPT=yes       # Add a blank line before each prompt display
+
+
+configure_prompt() {
+    local prompt_symbol="@"
+    [[ "$EUID" -eq 0 ]] && prompt_symbol="[!]"
+    local prompt_zone1="(Local)─"
+    
+    # Debug SSH variables
+    if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]] || [[ -n "$SSH_CONNECTION" ]]; then
+        prompt_zone1="(Remote)─"
+        # Debug: show which SSH variable is set
+        [[ -n "$SSH_CLIENT" ]] && echo "DEBUG: SSH_CLIENT=$SSH_CLIENT" >&2
+        [[ -n "$SSH_TTY" ]] && echo "DEBUG: SSH_TTY=$SSH_TTY" >&2
+        [[ -n "$SSH_CONNECTION" ]] && echo "DEBUG: SSH_CONNECTION=$SSH_CONNECTION" >&2
+    fi
+
+    # Main prompt with git status, user info, path, time, etc.
+    # Simplified to avoid cursor positioning issues
+    PROMPT=$'%F{%(#.red.blue)}┬─'$prompt_zone1$'${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}$(git_super_status)(%B%F{%(#.red.blue)}%n%F{15}'$prompt_symbol$'%B%F{%(#.red.blue)}%m%b%F{%(#.red.blue)})─(%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.red.blue)})\n╰─>(%B%F{33}%*%b%F{%(#.red.blue)})$(super_remote) %B%F{%(#.red.blue)}►%b%F{reset} '
+
+    # Clean up temporary variables
+    unset prompt_symbol
+    unset prompt_zone1
+}
+
+# Load system statistics functions
+source /etc/zsh/zsh-system-stats  
+
+# Configure right prompt with system statistics
+
+stats='%F{9}%fLA:%F{75}$loadavg%f|CPU:%F{202}$cpu%f|RAM:%F{208}$memory%f%F{9}%f'
+RPS1="$stats%{$reset_color%}"  # RPROMPT : affiché à droite
+
+
+# Load the prompt
+configure_prompt

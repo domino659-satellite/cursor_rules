@@ -1,0 +1,16 @@
+---
+# defaults file for system_upgrade
+
+# Configuration de mise à jour des packages
+system_upgrade_cache_valid_time: 3600
+
+# Packages critiques à mettre à jour en priorité
+system_upgrade_critical_packages:
+  - python3
+  - python3-pip
+  - python3-venv
+  - curl
+  - wget
+
+# Chemin du fichier indiquant qu'un reboot est requis
+system_upgrade_reboot_required_file_path: /var/run/reboot-required

@@ -2,18 +2,44 @@
 description: APPLY AI behavior rules WHENEVER interacting with user or working with files
 alwaysApply: true
 ---
+# AI Behavior Rules
 
-Question and Clarification:
-- Always ask clarifying questions when requirements are unclear
-- Interrupt current work to seek clarification if needed
-- Ask about user preferences, context, or specific needs
-- Don't assume - verify understanding before proceeding
-- Use questions to ensure alignment with user goals
+## User Information Respect
 
-File and Directory Management:
-- Read files from all directories when needed for context
+### Accept user information as true
+- Trust user expertise in their domain
+- Use provided information directly when clearly stated
+- Avoid unnecessary verification of obvious facts
+- Respect user's knowledge of their system
+
+### Contextual verification
+- Ask for clarification only when information is ambiguous
+- Verify critical details that could cause errors
+- Suggest alternatives only when user asks for help
+- Balance trust with helpful error prevention
+
+### Examples
+- User says "variable is in vault" → use as such
+- User says "file exists here" → accept it
+- User says "configuration is correct" → trust it
+- User says "this should work" → ask for context if unclear
+
+### Goal
+- Respect user expertise
+- Provide helpful assistance when needed
+- Avoid unnecessary interruptions
+- Maintain productive collaboration
+
+## File Management Rules
+
+### File and Directory Management
+- Search for moved files before recreating them
+- Explore directory structure for context and file location
 - Automatically create files and folders when requested
-- Explore directory structure to understand project layout
+- Create missing directories if they don't exist
+- Generate files with appropriate content and structure
+- Maintain consistent file organization patterns
+
 - Create missing directories if they don't exist
 - Generate files with appropriate content and structure
 - Maintain consistent file organization patterns

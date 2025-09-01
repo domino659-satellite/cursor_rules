@@ -1,0 +1,82 @@
+---
+# tasks file for user_configuration
+
+- name: Generate user-specific ZSH configuration
+  ansible.builtin.template:
+    src: zshrc.j2
+    dest: "/home/{{ user_data.name }}/.zshrc"
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+    mode: '0644'
+  vars:
+    user: "{{ user_data }}"
+  when: user_data.state != 'absent'
+
+- name: Add authorized keys for user
+  ansible.posix.authorized_key:
+    user: "{{ user_data.name }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ user_data.ssh.authorized_key | default([]) }}"
+  when: user_data.ssh.authorized_key is defined
+
+- name: Create user directories
+  ansible.builtin.file:
+    path: "/home/{{ user_data.name }}/{{ item.path }}"
+    state: directory
+    mode: "{{ item.mode }}"
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+  loop:
+    - { path: '.venv', mode: '0755' }
+    - { path: '.credentials', mode: '0700' }
+  when: user_data.state != 'absent'
+
+- name: Configure Git for user
+  ansible.builtin.template:
+    src: .gitconfig_primary.j2
+    dest: "/home/{{ user_data.name }}/.gitconfig"
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+    mode: '0644'
+  vars:
+    user: "{{ user_data }}"
+
+- name: Create primary git repository directory
+  ansible.builtin.file:
+    path: "/home/{{ user_data.name }}/repo_{{ user_data.git_repositories[0].name }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+
+- name: Create secondary git repository directory
+  ansible.builtin.file:
+    path: "/home/{{ user_data.name }}/repo_{{ user_data.git_repositories[1].name }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+
+- name: Create secondary git configuration
+  ansible.builtin.template:
+    src: .gitconfig_secondary.j2
+    dest: "/home/{{ user_data.name }}/repo_{{ repo.name }}/.gitconfig"
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+    mode: '0644'
+  vars:
+    user: "{{ user_data }}"
+    repo: "{{ user_data.git_repositories[1] }}"
+
+- name: Display user configuration summary
+  ansible.builtin.debug:
+    msg:
+      - "User Configuration Summary:"
+      - "- User: {{ user_data.name }}"
+      - "- ZSH configuration generated"
+      - "- SSH authorized keys added"
+      - "- User directories created"
+      - "- Git configured"
+      - "- Primary repository: {{ user_data.git_repositories[0].name }}"
+      - "- Secondary repository: {{ user_data.git_repositories[1].name }}"

@@ -1,0 +1,27 @@
+---
+# tasks file for vim
+- name: Install Vim and related packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ vim_packages }}"
+    state: present
+    update_cache: true
+  register: vim_install_result
+
+- name: Configure Vim system-wide
+  become: true
+  ansible.builtin.template:
+    src: vimrc.j2
+    dest: /etc/vim/vimrc.local
+    owner: root
+    group: root
+    mode: "0644"
+  register: vim_config_result
+
+- name: Display Vim installation summary
+  ansible.builtin.debug:
+    msg:
+      - "Vim Installation Summary:"
+      - "- Packages installed: {{ vim_install_result.changed | default(false) }}"
+      - "- Configuration applied: {{ vim_config_result.changed | default(false) }}"
+  when: vim_install_result.changed or vim_config_result.changed

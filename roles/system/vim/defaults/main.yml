@@ -1,0 +1,13 @@
+---
+# defaults file for vim
+
+# Packages Vim à installer
+vim_packages:
+  # Vim editor and plugins
+  - vim                 # Vim editor
+  - vim-doc             # Vim documentation
+  - vim-runtime         # Vim runtime files
+  - vim-scripts         # Collection of Vim scripts
+  # Outils complémentaires
+  - cscope              # Source code browsing
+  - universal-ctags     # Code navigation (modern ctags)

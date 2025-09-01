@@ -1,0 +1,282 @@
+# ─── ZSH FZF HISTORY SEARCH ─────────────────────────────────────────────────
+
+# Advanced history search using FZF (Fuzzy Finder)
+# Provides excellent fuzzy search interface for command history with enhanced features
+
+# Ne rien faire si fzf n'est pas installé
+(( ! $+commands[fzf] )) && return
+
+# ─── CONFIGURATION AVANCÉE ───────────────────────────────────────────────────
+
+# Touche de raccourci (Ctrl+R par défaut)
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_BIND} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_BIND='^r'
+
+# Touche de raccourci pour la recherche avant (Ctrl+F par défaut, car Ctrl+S peut être intercepté par le terminal)
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_FORWARD_BIND} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_FORWARD_BIND='^f'
+
+# Arguments de base pour fzf (tri, multi-sélection désactivée, etc.)
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_FZF_ARGS} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_FZF_ARGS='+s +m -x -e --preview-window=hidden --height=40% --border=rounded'
+
+# Arguments supplémentaires personnalisables
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_FZF_EXTRA_ARGS} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_FZF_EXTRA_ARGS=''
+
+# Placer le curseur à la fin de la ligne sélectionnée
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_END_OF_LINE} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_END_OF_LINE=1
+
+# Afficher les numéros d'événement
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_EVENT_NUMBERS} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_EVENT_NUMBERS=0
+
+# Afficher les dates dans l'historique
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH=0
+
+# Supprimer les doublons dans l'historique
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_REMOVE_DUPLICATES} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_REMOVE_DUPLICATES=1
+
+# Nombre maximum de commandes à afficher
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_MAX_ENTRIES} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_MAX_ENTRIES=10000
+
+# Couleurs et thème
+(( ! ${+ZSH_FZF_HISTORY_SEARCH_COLORS} )) &&
+typeset -g ZSH_FZF_HISTORY_SEARCH_COLORS='--color=16,border:bright-blue,fg+:bright-white,bg+:bright-blue,hl:bright-yellow,hl+:bright-red'
+
+# Configuration du flow control
+
+
+# ─── FONCTIONS UTILITAIRES ──────────────────────────────────────────────────
+
+# Fonction pour nettoyer l'historique
+_clean_history() {
+    local fc_args=()
+    
+    # Ajouter les arguments de base
+    fc_args+=("-l")
+    fc_args+=("-1")
+    fc_args+=("-$ZSH_FZF_HISTORY_SEARCH_MAX_ENTRIES")
+    
+    # Ajouter la date si activé
+imp    (( $ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH )) && fc_args+=("-i")
+    
+    # Construire la commande fc
+    local history_cmd="fc ${fc_args[@]}"
+    
+    # Supprimer les doublons si activé
+    if (( $ZSH_FZF_HISTORY_SEARCH_REMOVE_DUPLICATES )); then
+        if (( $+commands[awk] )); then
+            history_cmd="$history_cmd | awk '!seen[\$0]++'"
+        else
+            history_cmd="$history_cmd | uniq"
+        fi
+    fi
+    
+    echo "$history_cmd"
+}
+
+# Fonction pour formater l'historique
+_format_history() {
+    local line="$1"
+    local show_numbers="$2"
+    local show_dates="$3"
+    
+    if (( $show_dates )); then
+        # Extraire la date et la commande
+        if [[ "$line" =~ '^([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})[[:space:]]+([0-9]+)[[:space:]]+(.+)$' ]]; then
+            local date="${match[1]}"
+            local number="${match[2]}"
+            local command="${match[3]}"
+            
+            if (( $show_numbers )); then
+                echo "📅 $date | #$number | $command"
+            else
+                echo "📅 $date | $command"
+            fi
+        else
+            echo "$line"
+        fi
+    else
+        # Sans dates
+        if [[ "$line" =~ '^[[:space:]]*([0-9]+)[[:space:]]+(.+)$' ]]; then
+            local number="${match[1]}"
+            local command="${match[2]}"
+            
+            if (( $show_numbers )); then
+                echo "#$number | $command"
+            else
+                echo "$command"
+            fi
+        else
+            echo "$line"
+        fi
+    fi
+}
+
+# ─── FONCTIONS PRINCIPALES ───────────────────────────────────────────────────
+
+# Fonction principale pour la recherche dans l'historique via fzf
+fzf_history_search() {
+    setopt extendedglob  # Active les globbing avancés
+    
+    # Préparer la commande d'historique
+    local history_cmd=$(_clean_history)
+    local candidates=()
+    
+    # Lancer fzf avec l'historique filtré et formaté
+    candidates=(${(f)"$(eval $history_cmd | while IFS= read -r line; do
+        _format_history "$line" $ZSH_FZF_HISTORY_SEARCH_EVENT_NUMBERS $ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH
+    done | fzf ${=ZSH_FZF_HISTORY_SEARCH_FZF_ARGS} ${=ZSH_FZF_HISTORY_SEARCH_COLORS} ${=ZSH_FZF_HISTORY_SEARCH_FZF_EXTRA_ARGS} -q "$BUFFER" --prompt='🔍 History Search > ')"})
+    
+    local ret=$?
+    
+    if [ -n "$candidates" ]; then
+        # Extraire la commande pure (sans formatage)
+        local clean_command=""
+        
+        if (( $ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH )); then
+            # Avec dates
+            if [[ "$candidates[1]" =~ '^📅 [^|]+ \| #[0-9]+ \| (.+)$' ]]; then
+                clean_command="${match[1]}"
+            elif [[ "$candidates[1]" =~ '^📅 [^|]+ \| (.+)$' ]]; then
+                clean_command="${match[1]}"
+            fi
+        else
+            # Sans dates
+            if [[ "$candidates[1]" =~ '^#[0-9]+ \| (.+)$' ]]; then
+                clean_command="${match[1]}"
+            fi
+        fi
+        
+        # Si on n'a pas pu extraire, utiliser la ligne complète
+        [[ -z "$clean_command" ]] && clean_command="$candidates[1]"
+        
+        # Appliquer la commande dans le buffer
+        BUFFER="$clean_command"
+        
+        # Aller en fin de ligne si demandé
+        if (( $ZSH_FZF_HISTORY_SEARCH_END_OF_LINE )); then
+            zle end-of-line
+        fi
+        
+        # Redessiner le prompt
+        zle redisplay
+    fi
+    
+    zle reset-prompt
+    return $ret
+}
+
+# Fonction pour la recherche avant (Ctrl+S)
+fzf_history_search_forward() {
+    # Construire la commande d'historique de manière sécurisée
+    local fc_args=()
+    fc_args+=("-l")
+    fc_args+=("-1")
+    fc_args+=("-$ZSH_FZF_HISTORY_SEARCH_MAX_ENTRIES")
+    
+    # Ajouter la date si activé
+    (( $ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH )) && fc_args+=("-i")
+    
+    # Construire la commande de base
+    local history_cmd="fc ${fc_args[@]}"
+    
+    # Inverser l'ordre et supprimer les doublons si activé
+    if (( $ZSH_FZF_HISTORY_SEARCH_REMOVE_DUPLICATES )); then
+        if (( $+commands[awk] )); then
+            history_cmd="$history_cmd | awk '!seen[\$0]++' | tac"
+        else
+            history_cmd="$history_cmd | uniq | tac"
+        fi
+    else
+        history_cmd="$history_cmd | tac"
+    fi
+    
+    local candidates=(${(f)"$(eval $history_cmd | while IFS= read -r line; do
+        _format_history "$line" $ZSH_FZF_HISTORY_SEARCH_EVENT_NUMBERS $ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH
+    done | fzf ${=ZSH_FZF_HISTORY_SEARCH_FZF_ARGS} ${=ZSH_FZF_HISTORY_SEARCH_COLORS} ${=ZSH_FZF_HISTORY_SEARCH_FZF_EXTRA_ARGS} -q "$BUFFER" --prompt='🔍 History Forward > ')"})
+    
+    local ret=$?
+    
+    if [ -n "$candidates" ]; then
+        # Extraire la commande pure (même logique que pour la recherche arrière)
+        local clean_command=""
+        
+        if (( $ZSH_FZF_HISTORY_SEARCH_DATES_IN_SEARCH )); then
+            if [[ "$candidates[1]" =~ '^📅 [^|]+ \| #[0-9]+ \| (.+)$' ]]; then
+                clean_command="${match[1]}"
+            elif [[ "$candidates[1]" =~ '^📅 [^|]+ \| (.+)$' ]]; then
+                clean_command="${match[1]}"
+            fi
+        else
+            if [[ "$candidates[1]" =~ '^#[0-9]+ \| (.+)$' ]]; then
+                clean_command="${match[1]}"
+            fi
+        fi
+        
+        [[ -z "$clean_command" ]] && clean_command="$candidates[1]"
+        
+        BUFFER="$clean_command"
+        
+        if (( $ZSH_FZF_HISTORY_SEARCH_END_OF_LINE )); then
+            zle end-of-line
+        fi
+        
+    zle redisplay
+    fi
+    
+    zle reset-prompt
+    return $ret
+}
+
+# ─── FONCTIONS COMPLÉMENTAIRES ───────────────────────────────────────────────
+
+# Affichage rapide de l'historique récent (Alt+H)
+quick_history_display() {
+    zle kill-whole-line
+    echo "📚 Recent Commands:"
+    echo "─────────────────────────────────────────────────────────────"
+    
+    # Afficher les 15 dernières commandes avec formatage
+    fc -l -15 | while IFS= read -r line; do
+        _format_history "$line" 1 1
+    done
+    
+    echo "─────────────────────────────────────────────────────────────"
+    echo "💡 Use Ctrl+R for advanced search or copy/paste commands above"
+}
+
+# ─── CHARGEMENT ET CONFIGURATION ─────────────────────────────────────────────
+
+# Charger les fonctions
+autoload fzf_history_search
+autoload fzf_history_search_forward
+autoload quick_history_display
+
+# Créer les widgets ZLE
+zle -N fzf_history_search
+zle -N fzf_history_search_forward
+zle -N quick_history_display
+
+# Associer les touches de raccourci
+bindkey "$ZSH_FZF_HISTORY_SEARCH_BIND" fzf_history_search
+bindkey "$ZSH_FZF_HISTORY_SEARCH_FORWARD_BIND" fzf_history_search_forward
+bindkey '^[h' quick_history_display
+
+# ─── ALIASES UTILES ─────────────────────────────────────────────────────────
+
+# Alias pour afficher l'historique avec grep
+alias h='fc -l | grep -i'
+alias hg='fc -l | grep -i'
+alias hist='fc -l -20'
+
+# ─── MESSAGE DE CONFIRMATION ────────────────────────────────────────────────
+
+# Afficher un message de confirmation au chargement
+echo "🚀 FZF History Search loaded successfully!"
+echo "   Ctrl+R: Search backward | Ctrl+F: Search forward | Alt+H: Quick display"

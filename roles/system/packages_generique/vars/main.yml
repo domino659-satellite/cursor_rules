@@ -1,0 +1,5 @@
+---
+# vars file for packages_generique
+
+# Package manager configuration
+packages_generique_additional_packages: "{{ global_additional_packages | default([]) }}"

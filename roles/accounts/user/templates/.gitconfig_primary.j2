@@ -1,0 +1,109 @@
+[user]
+    email = {{ user.git_repositories[0].email | default('user@example.com') }}
+    name = {{ user.git_repositories[0].name | default('User Name') }}
+
+{% for repo in user.git_repositories | default([]) %}
+{% if not loop.first and repo.status | default(false) %}
+[includeIf "gitdir:~/repo_{{ repo.name }}/"]
+    path = ~/repo_{{ repo.name }}/.gitconfig
+{% endif %}
+{% endfor %}
+
+[core]
+    editor = vim
+    excludesfile = ~/.gitignore
+    autocrlf = input
+    pager = less
+    whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol,space-before-tab
+    tabwidth = 4
+    symlinks = false
+
+[log]
+    decorate = full
+    date = local
+
+[push]
+    default = simple
+    autoSetupRemote = true
+
+[pull]
+    rebase = true
+
+[http]
+    sslVerify = false
+
+[color]
+    ui = true
+    branch = true
+    diff = true
+    interactive = true
+    status = true
+
+[color "branch"]
+    current = magenta bold
+    local = green bold
+    remote = cyan bold
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+
+[color "status"]
+    added = green bold
+    changed = yellow bold
+    untracked = white
+
+[alias]
+    # Status
+    st = status
+    s = status -s
+    
+    # Add
+    a = add
+    aa = add --all
+    
+    # Commit
+    c = commit
+    cm = commit -m
+    ca = commit --amend
+    can = commit --amend --no-edit
+    
+    # Branch
+    b = branch
+    ba = branch -a
+    bd = branch -d
+    bdd = branch -D
+    br = branch -r
+    current = rev-parse --abbrev-ref HEAD
+    
+    # Checkout
+    co = checkout
+    cob = checkout -b
+    cot = checkout -t
+    
+    # Push/Pull
+    p = push
+    pf = push --force
+    pu = push -u
+    po = push origin
+    pullr = pull --rebase
+    
+    # Log
+    lg = log --graph --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset --> %C(magenta)%d%Creset' --abbrev-commit --date=relative
+    ll = log --oneline
+    last = log -1 HEAD
+    
+    # Reset
+    unstage = reset HEAD --
+    uncommit = reset --soft HEAD~1
+    
+    # Stash
+    sl = stash list
+    sa = stash apply
+    sp = stash pop
+    
+    # Cleanup
+    cleanup = "!f() { git branch --merged | grep -v \"main\\|master\\|develop\\|*\" | xargs git branch --delete; }; f"

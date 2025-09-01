@@ -1,0 +1,7 @@
+---
+# defaults file for ssh
+
+# SSH packages to install
+ssh_packages:
+  - openssh-client
+  - openssh-server

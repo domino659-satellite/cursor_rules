@@ -1,0 +1,26 @@
+---
+# tasks file for zsh
+- name: Install ZSH and related packages
+  become: true
+  ansible.builtin.package:
+    name: "{{ zsh_packages }}"
+    state: present
+    update_cache: true
+  register: zsh_install_result
+
+- name: Copy ZSH configuration files
+  become: true
+  ansible.builtin.copy:
+    src: etc/
+    dest: /etc/zsh
+    mode: "0644"
+    owner: root
+    group: root
+  register: zsh_config_result
+
+- name: Display ZSH installation summary
+  ansible.builtin.debug:
+    msg:
+      - "ZSH Installation Summary:"
+      - "- Packages installed: {{ zsh_install_result.changed | default(false) }}"
+      - "- Configuration copied: {{ zsh_config_result.changed | default(false) }}"

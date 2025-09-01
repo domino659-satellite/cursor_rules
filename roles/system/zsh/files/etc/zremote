@@ -1,0 +1,178 @@
+# ─── TMUX SESSION MANAGEMENT ────────────────────────────────────────────────
+# Advanced tmux session management with keyboard shortcuts
+# Provides session information and basic management tools
+
+# ─── CONFIGURATION ────────────────────────────────────────────────────────────
+(( ! ${+ZSH_REMOTE_SHORTCUTS} )) && typeset -g ZSH_REMOTE_SHORTCUTS=1
+
+# ─── SESSION DETECTION ───────────────────────────────────────────────────────
+super_remote() {
+    [[ -z "$TMUX" ]] && return
+    local session_name="${${TMUX##*,}##*/}"
+    [[ -z "$session_name" ]] && return
+    [[ "$session_name" == "default" ]] && session_name="1"
+    echo "%F{%(#.red.blue)}─(tmux-$session_name)%F{%(#.red.blue)}"
+}
+
+# ─── SESSION MANAGEMENT ──────────────────────────────────────────────────────
+new_tmux() {
+    local session_name="${1:-$(get_next_session_number)}"
+    _check_tmux || _error "tmux is not installed"
+    echo "Creating tmux session: $session_name"
+    tmux new-session -d -s "$session_name" && tmux attach-session -t "$session_name"
+}
+
+list_sessions() {
+    echo "🎭 Tmux Sessions:"
+    
+    if ! _check_tmux; then
+        echo "   Tmux not installed"
+        return
+    fi
+    
+    local sessions=$(tmux list-sessions -F '#S:#{session_attached}' 2>/dev/null)
+    if [[ -z "$sessions" ]]; then
+        echo "   None"
+        return
+    fi
+    
+    echo "$sessions" | while IFS=: read -r name attached; do
+        [[ -z "$name" ]] && continue
+        if [[ "$attached" == "1" ]]; then
+            echo "  ✅ $name"
+        else
+            echo "  ❌ $name"
+        fi
+    done
+}
+
+attach_session() {
+    _check_tmux || _error "tmux is not installed"
+    local sessions=($(tmux list-sessions -F '#S' 2>/dev/null))
+    if [[ ${#sessions[@]} -eq 0 ]]; then
+        echo "No sessions available."
+        return 1
+    fi
+    echo "🎭 Available Tmux Sessions:"
+    for i in "${!sessions[@]}"; do
+        echo "  $((i+1))) ${sessions[i]}"
+    done
+    echo ""
+    echo -n "Choose session (1-${#sessions[@]}): "
+    read -r choice
+
+    if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#sessions[@]} )); then
+        local session_name="${sessions[$((choice-1))]}"
+        echo "Attaching to tmux session: $session_name"
+        tmux attach-session -t "$session_name"
+    else
+        echo "Invalid choice. Please select a number between 1 and ${#sessions[@]}."
+    fi
+}
+
+_check_tmux() {
+    command -v tmux >/dev/null 2>&1
+}
+
+_error() {
+    echo "Error: $1" >&2
+    return 1
+}
+
+detach_session() {
+    if [[ -z "$TMUX" ]]; then
+        echo "Not in a tmux session"
+        return 1
+    fi
+    echo "Detaching from tmux session..."
+    tmux detach-client
+}
+
+# ─── ZLE WIDGETS ──────────────────────────────────────────────────────────────
+
+get_next_session_number() {
+    local max_sessions=10
+    _check_tmux || { echo "1"; return; }
+    
+    local existing=($(tmux list-sessions -F '#S' 2>/dev/null | sort -n))
+    for ((i=1; i<=max_sessions; i++)); do
+        [[ ! " ${existing[@]} " =~ " $i " ]] && { echo "$i"; return; }
+    done
+    echo "1"  # Recycle if all taken
+}
+
+zle_new_tmux() {
+    zle -I
+    local session_number=$(get_next_session_number)
+    echo "Creating tmux session: $session_number"
+    
+    if _check_tmux; then
+        _PENDING_ATTACH_CMD="tmux new-session -d -s $session_number && tmux attach-session -t $session_number"
+        echo "Press Enter to attach to session..."
+    else
+        _error "tmux is not installed"
+    fi
+}
+
+zle_list_sessions() {
+    zle -I
+    list_sessions
+}
+
+zle_detach_session() {
+    zle -I
+    detach_session
+}
+
+zle_attach_session() {
+    zle -I
+    
+    _check_tmux || _error "tmux is not installed"
+    local sessions=$(tmux list-sessions -F '#S' 2>/dev/null | head -10)
+    [[ -z "$sessions" ]] && { echo "No sessions available."; return 1; }
+    if command -v fzf >/dev/null 2>&1; then
+        local selected=$(echo "$sessions" | fzf --prompt="Select session: " --height=40% --reverse)
+        if [[ -n "$selected" ]]; then
+            zle -I
+            echo ""
+            echo "Attaching to tmux session: $selected"
+            _PENDING_ATTACH_CMD="tmux attach-session -t $selected"
+            echo "Press Enter to attach to session..."
+        fi
+    else
+        echo "🎭 Available Sessions:"
+        echo "$sessions" | sed 's/^/  /'
+        echo ""
+        echo "Use 'attach_session' function directly for interactive selection."
+    fi
+}
+
+setup_remote_shortcuts() {
+    (( ! $ZSH_REMOTE_SHORTCUTS )) && return
+    # Create ZLE widgets
+    zle -N zle_new_tmux
+    zle -N zle_list_sessions
+    zle -N zle_attach_session
+    zle -N zle_detach_session
+    # Bind keyboard shortcuts
+    bindkey '^[t' zle_new_tmux      # Alt+T: New tmux session
+    bindkey '^[l' zle_list_sessions # Alt+L: List sessions
+    bindkey '^[a' zle_attach_session # Alt+A: Attach to session
+    bindkey '^[d' zle_detach_session # Alt+D: Detach from session
+}
+
+# ─── EXECUTION HOOK ──────────────────────────────────────────────────────────
+zle_attach_execute() {
+    if [[ -n "$_PENDING_ATTACH_CMD" ]]; then
+        local cmd="$_PENDING_ATTACH_CMD"
+        unset _PENDING_ATTACH_CMD
+        # Execute the command directly
+        eval "$cmd"
+    fi
+}
+
+# Register hook
+add-zsh-hook precmd zle_attach_execute
+
+# ─── INITIALIZATION ──────────────────────────────────────────────────────────
+setup_remote_shortcuts

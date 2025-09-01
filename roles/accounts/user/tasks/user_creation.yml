@@ -1,0 +1,39 @@
+---
+# tasks file for create_user
+
+- name: Create user
+  become: true
+  ansible.builtin.user:
+    name: "{{ user_data.name }}"
+    comment: "{{ user_data.comment }}"
+    groups: "{{ user_data.groups }}"
+    password: "{{ user_data.password | password_hash('sha512') }}"
+    state: "{{ user_data.state }}"
+    shell: "{{ user_data.shell }}"
+    skeleton: /etc/skel
+    update_password: always
+  register: user_result
+
+- name: Copy skel content for existing users
+  become: true
+  ansible.builtin.copy:
+    src: /etc/skel/
+    dest: "/home/{{ user_data.name }}/"
+    owner: "{{ user_data.name }}"
+    group: "{{ user_data.name }}"
+    mode: preserve
+    backup: true
+    remote_src: true
+    force: false
+  when:
+    - user_data.state == "present"
+  register: skel_copy_result
+
+- name: Display user summary
+  ansible.builtin.debug:
+    msg:
+      - "User Management Summary:"
+      - "- User: {{ user_data.name }}"
+      - "- Created/updated: {{ user_result.changed }}"
+      - "- State: {{ user_data.state }}"
+      - "- Skel content copied: {{ skel_copy_result.changed | default(false) }}"

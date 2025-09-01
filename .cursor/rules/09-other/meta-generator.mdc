@@ -4,15 +4,6 @@ globs: .cursor/rules/**
 alwaysApply: false
 ---
 
-# Rule Template
-
-```mdc
----
-description: to_generate
-globs: to_generate
-alwaysApply: to_generate
----
-
 Sub rule 1:
 - Rule 1
 - Rule 2
@@ -32,6 +23,7 @@ Sub rule 1:
 ```text
 #-rule-name[@version][-specificity].mdc
 ```
+
 #### Directory structure
 - Write in .cursor/rules/{folder}/{rule}.mdc
 
@@ -47,16 +39,14 @@ Sub rule 1:
 - `08-domain-specific-rules`
 - `09-other`
 
-### 2. frontmatter header
+### 2. Frontmatter Header
 
 #### Generate `description`
-
 One line. Comprehensive description that provides full context and clearly indicates when this rule should be applied. Include key scenarios, impacted areas, and why following this rule is important. While being thorough, remain focused and relevant. The description should be detailed enough that the agent can confidently determine whether to apply the rule in any given situation.
 
 **IMPORTANT**: The description must clearly specify WHEN to apply the rule so Cursor knows exactly when to use this specific rule vs others. Include trigger words, contexts, and specific scenarios.
 
 #### Generate `globs`
-
 - Appropriate extension language based (e.g. `*.tsx` for React)
 - Appropriate sub-folder: can be `features`, `controller` etc
 - Appropriate repo: `apps/frontend`, `apps/backend`
@@ -66,7 +56,7 @@ One line. Comprehensive description that provides full context and clearly indic
 #### Generate `alwaysApply`
 - Mostly false, double check if this REALLY needs to be applied globally
 
-### 3. Rule content
+### 3. Rule Content
 
 #### Groups (optional)
 - Not needed for short rules content
@@ -82,5 +72,52 @@ One line. Comprehensive description that provides full context and clearly indic
 - Write commands only
 - 1 ultra short (3–7 words) rule per bullet point
 
+### 4. Filled Template
+- Write proper filled template in proper dir WITH frontmatter header
+
+## MDC Frontmatter Protection
+
+### Never modify frontmatter headers
+- Preserve exact structure: `---`, `description:`, `globs:`, `alwaysApply:`, `---`
+- Frontmatter is essential for Cursor rules functionality
+- Only modify content below the frontmatter section
+- Maintain metadata integrity in all .mdc files
+
+## File Generation Rules
+
+### Create files with proper structure
+- Generate appropriate file extensions
+- Include necessary imports and dependencies
+- Follow project naming conventions
+- Maintain consistent formatting
+
+### Directory management
+- Create missing directories when needed
+- Preserve existing directory structure
+- Use appropriate permissions
+- Follow project organization patterns
+
 ### 4. Filled template
 - Write proper filled template in proper dir WITH frontmatter header
+
+### File Protection Rules
+- **NEVER delete files without explicit user authorization**
+- Always ask before removing any existing files
+- Request confirmation for file deletions
+- Preserve user work and configurations
+- Explain why deletion might be needed
+- Offer alternatives to deletion when possible
+- **Instead of deletion, move files to .backup directory**
+- Create .backup folder when needed for file preservation
+- Maintain backup structure for easy restoration
+- Keep original file paths in backup for reference
+
+### Feature Abandonment Rules
+- **NEVER abandon functionality as a solution**
+- Always find alternative approaches to make features work
+- Research and implement proper solutions instead of removing features
+- Persist in solving technical challenges rather than giving up
+- Explore different implementation strategies when initial approach fails
+- Document why certain approaches don't work for future reference
+- Maintain feature completeness and user experience
+- Consider user needs over technical convenience

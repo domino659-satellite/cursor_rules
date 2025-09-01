@@ -1,0 +1,11 @@
+---
+# main tasks file for user role
+
+- name: Include wheel setup tasks
+  ansible.builtin.include_tasks: wheel_setup.yml
+
+- name: Include user creation tasks
+  ansible.builtin.include_tasks: user_creation.yml
+
+- name: Import user configuration tasks
+  ansible.builtin.include_tasks: user_configuration.yml

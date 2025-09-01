@@ -1,0 +1,139 @@
+{{ ansible_managed | comment(decoration='" ') }}
+
+" =============================================================================
+" CONFIGURATION DE BASE
+" =============================================================================
+
+" Mode Vim moderne (pas de compatibilité Vi)
+set nocompatible
+
+" Coloration syntaxique
+syntax on
+
+" Numérotation des lignes
+set number
+
+" Affichage de la position du curseur
+set ruler
+
+" Barre de statut toujours visible
+set laststatus=2
+set statusline=%<%f%h%m%r%=%l,%c\ %P
+
+" =============================================================================
+" INTERFACE UTILISATEUR
+" =============================================================================
+
+" Supprime le bip sonore
+set noerrorbells
+" set visualbell              " Flash lumineux (peut être gênant)
+
+" Affichage des commandes en cours
+set showcmd
+
+" Mise en surbrillance des paires de parenthèses
+set showmatch
+set matchtime=2
+
+" Affichage des caractères invisibles
+set list
+set listchars=tab:>-,trail:-,extends:>,precedes:<
+
+" =============================================================================
+" NAVIGATION ET DÉPLACEMENT
+" =============================================================================
+
+" Déplacement avec les flèches sur les lignes
+set whichwrap=<,>,[,]
+
+" Scroll intelligent
+set scrolloff=3
+set sidescrolloff=5
+
+" Conserve la colonne du curseur
+set nostartofline
+
+" Recherche améliorée
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+
+" =============================================================================
+" ÉDITION ET INDENTATION
+" =============================================================================
+
+" Configuration des tabulations
+set expandtab
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+
+" Indentation automatique
+set autoindent
+set smartindent
+
+" Retour à la ligne
+set wrap
+set linebreak
+
+" =============================================================================
+" PERFORMANCE ET HISTORIQUE
+" =============================================================================
+
+" Historique des commandes
+set history=1000
+
+" Fichier d'information Vim
+set viminfo='20,\"50
+
+" Backspace plus flexible
+set backspace=indent,eol,start
+
+" =============================================================================
+" PLIAGE DU CODE
+" =============================================================================
+
+" Pliage basé sur l'indentation
+set foldmethod=indent
+set foldlevel=99
+set foldnestmax=10
+
+" =============================================================================
+" COULEURS ET THÈMES
+" =============================================================================
+
+" Support des vraies couleurs
+if has('termguicolors')
+    set termguicolors
+endif
+
+" Thème sombre par défaut
+set background=dark
+
+" =============================================================================
+" FONCTIONNALITÉS AVANCÉES
+" =============================================================================
+
+" Complétion automatique
+set wildmenu
+set wildmode=list:longest,full
+
+" Édition virtuelle
+set virtualedit=onemore
+
+" Paires de caractères étendues
+set matchpairs+=<:>
+
+" =============================================================================
+" CONFIGURATIONS SPÉCIFIQUES
+" =============================================================================
+
+" Support des fichiers avec encodage UTF-8
+set encoding=utf-8
+set fileencoding=utf-8
+
+" Détection automatique du type de fichier
+filetype on
+filetype plugin on
+filetype indent on

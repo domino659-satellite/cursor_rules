@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+# ZSH System Statistics Functions
+# Functions for displaying system statistics in the prompt
+
+# System statistics caching for performance
+typeset -g __SYSTEM_CACHE_LOADAVG=""
+typeset -g __SYSTEM_CACHE_MEMORY=""
+typeset -g __SYSTEM_CACHE_CPU=""
+typeset -g __SYSTEM_LAST_UPDATE=0
+
+# Global variables for system statistics (used in prompt)
+typeset -g loadavg=""
+typeset -g cpu=""
+typeset -g memory=""
+
+# Function executed before each prompt display (optimized version)
+precmd() {
+    # Display window title if TERM_TITLE is set
+    [[ -n "$TERM_TITLE" ]] && print -Pnr -- "$TERM_TITLE"
+
+    # Add blank line before prompt (except first display)
+    if [[ "$NEWLINE_BEFORE_PROMPT" == "yes" ]]; then
+        if [[ -z "$_NEW_LINE_BEFORE_PROMPT" ]]; then
+            _NEW_LINE_BEFORE_PROMPT=1
+        else
+            print ""
+        fi
+    fi
+
+    # Use cache if it's less than 3 seconds old (more responsive than 5s)
+    local current_time=$(date +%s)
+    local cache_age=$((current_time - __SYSTEM_LAST_UPDATE))
+    
+    if [[ $cache_age -lt 3 ]] && [[ -n "$__SYSTEM_CACHE_LOADAVG" ]]; then
+        loadavg="$__SYSTEM_CACHE_LOADAVG"
+        memory="$__SYSTEM_CACHE_MEMORY"
+        cpu="$__SYSTEM_CACHE_CPU"
+        return 0
+    fi
+
+    # Load average (abrégé : LA) — les deux premières valeurs
+    loadavg=$(awk '{print $1 "-" $2}' /proc/loadavg)
+
+    # RAM utilisée en pourcentage (optimized)
+    if command -v free >/dev/null; then
+        mem_used=$(free | awk '/Mem:/ {printf("%.0f", 100 * $3 / $2)}')
+        memory="${mem_used}%%"
+    else
+        memory="N/A"
+    fi
+
+    # CPU utilisée (optimized without sleep)
+    if [[ -r /proc/stat ]]; then
+        # Single read approach - more efficient
+        local cpu_line=$(</proc/stat | grep '^cpu ')
+        if [[ -n "$cpu_line" ]]; then
+            local user=$(echo "$cpu_line" | awk '{print $2}')
+            local nice=$(echo "$cpu_line" | awk '{print $3}')
+            local system=$(echo "$cpu_line" | awk '{print $4}')
+            local idle=$(echo "$cpu_line" | awk '{print $5}')
+            local iowait=$(echo "$cpu_line" | awk '{print $6}')
+            
+            local total=$((user + nice + system + idle + iowait))
+            local used=$((total - idle - iowait))
+            
+            if [[ $total -gt 0 ]]; then
+                local usage=$((100 * used / total))
+                cpu="${usage}%%"
+            else
+                cpu="N/A"
+            fi
+        else
+            cpu="N/A"
+        fi
+    else
+        cpu="N/A"
+    fi
+
+    # Update cache
+    __SYSTEM_CACHE_LOADAVG="$loadavg"
+    __SYSTEM_CACHE_MEMORY="$memory"
+    __SYSTEM_CACHE_CPU="$cpu"
+    __SYSTEM_LAST_UPDATE=$current_time
+}

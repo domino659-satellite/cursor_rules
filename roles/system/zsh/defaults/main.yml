@@ -1,0 +1,18 @@
+---
+# defaults file for zsh
+
+# Liste des packages ZSH à installer
+zsh_packages:
+  # ZSH et plugins
+  - zsh
+  - zsh-autosuggestions
+  - zsh-syntax-highlighting
+  # Outils complémentaires
+  - ccze
+  - command-not-found
+  - fzf
+  - tmux
+
+# Configuration des fichiers
+zsh_config_dir: /etc/zsh
+zsh_skel_dir: /etc/skel

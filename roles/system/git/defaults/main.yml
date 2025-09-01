@@ -1,0 +1,10 @@
+---
+# defaults file for git
+
+# Packages Git à installer
+git_packages:
+  # Git version control system et plugins
+  - git              # Git version control system
+  - git-extras       # Git utilities
+  - git-lfs          # Git Large File Storage
+  - tig              # Text-mode interface for Git

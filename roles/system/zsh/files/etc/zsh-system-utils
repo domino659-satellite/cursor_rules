@@ -1,0 +1,83 @@
+# -*- coding: utf-8 -*-
+# ZSH System Utility Functions
+# Functions for system management, package suggestions, and other utilities
+
+# =============================================================================
+# COMMAND NOT FOUND
+# =============================================================================
+
+# Load command-not-found handler for package suggestions
+if [[ -f /etc/zsh_command_not_found ]]; then
+    source /etc/zsh_command_not_found
+elif [[ -f /usr/share/doc/pkgfile/command-not-found.zsh ]]; then
+    source /usr/share/doc/pkgfile/command-not-found.zsh
+fi
+
+# =============================================================================
+# SYNTAX HIGHLIGHTING
+# =============================================================================
+
+# Enable syntax highlighting if available
+if [[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+# =============================================================================
+# AUTO-SUGGESTIONS
+# =============================================================================
+
+# Enable autosuggestions if available
+if [[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+elif [[ -f /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
+# =============================================================================
+# TERMINAL INTEGRATION
+# =============================================================================
+
+# Terminal integration function (VTE, VS Code, Cursor)
+_terminal_integration() {
+    # VTE/Tilix Integration
+    if [[ -n "$TILIX_ID" ]] || [[ -n "$VTE_VERSION" ]]; then
+        [[ -f /etc/profile.d/vte.sh ]] && source /etc/profile.d/vte.sh
+    fi
+    
+    # VS Code Integration
+    if [[ "$TERM_PROGRAM" == "vscode" ]] && command -v code >/dev/null 2>&1; then
+        local code_shell_integration="$(code --locate-shell-integration-path zsh 2>/dev/null)"
+        [[ -n "$code_shell_integration" ]] && [[ -f "$code_shell_integration" ]] && source "$code_shell_integration"
+    fi
+    
+    # Cursor Integration
+    if [[ "$TERM_PROGRAM" == "cursor" ]] && command -v cursor >/dev/null 2>&1; then
+        local cursor_shell_integration="$(cursor --locate-shell-integration-path zsh 2>/dev/null)"
+        [[ -n "$cursor_shell_integration" ]] && [[ -f "$cursor_shell_integration" ]] && source "$cursor_shell_integration"
+    fi
+}
+
+# Execute terminal integration
+_terminal_integration
+
+# =============================================================================
+# LOGGING UTILITIES
+# =============================================================================
+
+# View log file with colors
+logview() {
+    if command -v ccze >/dev/null 2>&1; then
+        ccze -A < "$1" | less -R
+    else
+        less "$1"
+    fi
+}
+
+# Follow log file with colors
+logtail() {
+    if command -v ccze >/dev/null 2>&1; then
+        tail -f "$1" | ccze
+    else
+        tail -f "$1"
+    fi
+}

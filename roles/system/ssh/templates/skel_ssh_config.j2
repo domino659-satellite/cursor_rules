@@ -1,0 +1,27 @@
+# SSH Client Configuration - Common Skel Template
+
+Host *
+    # Basic configuration
+    ForwardAgent yes                            # SSH key forwarding through connections
+    StrictHostKeyChecking no                    # ⚠️ Masks host key change warnings (security risk)
+    HashKnownHosts yes                          # Hash hostnames in known_hosts
+    PermitLocalCommand yes                      # Allow local commands after SSH connection
+    
+    # Connection management
+    ServerAliveInterval 30                      # Keep-alive signal every 30 seconds
+    ServerAliveCountMax 3                       # Disconnect after 3 failed signals
+    
+    # Performance
+    Compression yes                             # Compress data for slow connections
+    ControlMaster auto                          # Reuse existing connections
+    ControlPath ~/.ssh/control-%h-%p-%r         # Control socket path
+    ControlPersist 10m                          # Keep connection open 10 minutes
+    
+    # Security
+    Protocol 2                                  # Force SSH v2 (more secure)
+    Ciphers aes128-ctr,aes192-ctr,aes256-ctr    # Encryption algorithms
+    MACs hmac-sha2-256,hmac-sha2-512            # Message integrity algorithms
+    
+    # Network
+    TCPKeepAlive yes                            # Keep TCP connection active
+    GSSAPIAuthentication no                     # Disable Kerberos auth (faster)

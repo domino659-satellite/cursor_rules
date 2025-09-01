@@ -1,0 +1,45 @@
+---
+# tasks file for ssh
+- name: Install SSH packages
+  ansible.builtin.apt:
+    name: "{{ ssh_packages }}"
+    state: present
+    update_cache: true
+  register: ssh_install_result
+  become: true
+
+- name: Start and enable SSH service
+  ansible.builtin.systemd:
+    name: "ssh"
+    state: started
+    enabled: true
+  register: ssh_service_result
+  become: true
+
+- name: Create /etc/skel/.ssh directory
+  ansible.builtin.file:
+    path: /etc/skel/.ssh
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+  become: true
+
+- name: Install SSH client configuration in skel
+  ansible.builtin.template:
+    src: skel_ssh_config.j2
+    dest: /etc/skel/.ssh/config
+    mode: '0600'
+    owner: root
+    group: root
+  become: true
+
+- name: Display SSH installation summary
+  ansible.builtin.debug:
+    msg:
+      - "SSH Installation Summary:"
+      - "- Packages installed: {{ ssh_packages | join(', ') }}"
+      - "- Installation changed: {{ ssh_install_result.changed }}"
+      - "- Service state: {{ ssh_service_result.state | default('unknown') }}"
+      - "- Service enabled: {{ ssh_service_result.enabled | default('unknown') }}"
+      - "- SSH skel configuration installed"

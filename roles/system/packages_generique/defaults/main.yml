@@ -1,0 +1,42 @@
+---
+# Default variables for packages_generique role - Multi-OS resilient
+
+# Package state
+packages_generique_state: "present"
+# Update cache before installing
+packages_generique_update_cache: true
+# Cache valid time in seconds
+packages_generique_cache_valid_time: 3600
+
+# Resilience settings
+packages_generique_fail_threshold: 0.8  # Fail if more than 80% packages fail
+packages_generique_continue_on_errors: true  # Continue even if some packages fail
+
+packages_generique_monitoring:
+  - htop          # Moniteur de processus interactif
+  - atop          # Moniteur système avec historique
+  - sysstat       # Outils de statistiques système (iostat, mpstat, sar)
+  - iotop         # Moniteur d'activité disque
+  - nethogs       # Moniteur de trafic réseau par processus
+
+packages_generique_network:
+  - dnsutils      # Outils DNS (dig, nslookup, host)
+  - tcpdump       # Capture et analyse de paquets
+  - iftop         # Moniteur de trafic réseau en temps réel
+  - iproute2      # Outils réseau modernes (ip, ss, tc)
+  - netcat        # Test de connectivité et transfert de fichiers
+  - nmap          # Scanner de ports et réseaux
+  - wireshark     # Analyseur de protocoles réseau
+
+packages_generique_utils:
+  - lvm2          # Outils de gestion des volumes logiques
+  - tree          # Affichage arborescent des répertoires
+  - fd-find       # Recherche de fichiers moderne et rapide
+  - ripgrep       # Recherche de texte ultra-rapide
+  - bat           # Affichage de fichiers avec coloration syntaxique
+  - exa           # Listing de fichiers moderne avec couleurs
+  - fzf           # Recherche floue interactive
+  - jq            # Processeur JSON en ligne de commande
+
+# Additional packages not in groups
+packages_generique_additional: []

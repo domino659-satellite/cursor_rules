@@ -1,0 +1,6 @@
+---
+# vars file for user
+# Variables that reference global variables from localhost.yml
+
+# Use global users list configuration
+user_data: "{{ global_user_data }}"

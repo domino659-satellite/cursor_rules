@@ -1,0 +1,67 @@
+---
+# tasks file for packages_generique role - Multi-OS resilient
+- name: Detect OS family
+  ansible.builtin.set_fact:
+    os_family: "{{ ansible_os_family | default('unknown') }}"
+    os_distribution: "{{ ansible_distribution | default('unknown') }}"
+
+- name: Build package list
+  ansible.builtin.set_fact:
+    final_package_list: >-
+      {{
+        (packages_generique_additional_packages | default([])) +
+        (packages_generique_monitoring | default([])) +
+        (packages_generique_network | default([])) +
+        (packages_generique_utils | default([]))
+      }}
+
+- name: Install packages individually with error handling
+  become: true
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: "{{ packages_generique_state }}"
+    update_cache: "{{ packages_generique_update_cache }}"
+    cache_valid_time: "{{ packages_generique_cache_valid_time }}"
+  register: package_results
+  failed_when: false  # Continue même si un paquet échoue
+  loop: "{{ final_package_list }}"
+  when: final_package_list | length > 0
+  ignore_errors: true  # Double protection
+
+- name: Collect installation results with resilience
+  ansible.builtin.set_fact:
+    results:
+      success: "{{ package_results.results | selectattr('changed', 'equalto', true) | map(attribute='item') | list }}"
+      failed: "{{ package_results.results | selectattr('failed', 'equalto', true) | map(attribute='item') | list }}"
+      unchanged: "{{ package_results.results | selectattr('changed', 'equalto', false) | selectattr('failed', 'equalto', false) | map(attribute='item') | list }}"
+      errors: "{{ package_results.results | selectattr('failed', 'equalto', true) | map(attribute='stderr') | list | select('string') | list }}"
+  when: final_package_list | length > 0
+
+- name: Display installation summary
+  ansible.builtin.debug:
+    msg:
+      - "📦 Package Installation Summary ({{ os_family }}/{{ os_distribution }}):"
+      - "- Total packages: {{ final_package_list | length }}"
+      - "- Successfully installed: {{ results.success | length }}"
+      - "- Failed installations: {{ results.failed | length }}"
+      - "- Already present: {{ results.unchanged | length }}"
+      - "- Failed packages: {{ results.failed | join(', ') | default('None') }}"
+  when: final_package_list | length > 0
+
+- name: Log failed packages for debugging
+  ansible.builtin.debug:
+    msg: "❌ Failed to install: {{ item }}"
+  loop: "{{ results.failed | default([]) }}"
+  when: results.failed | length > 0
+
+- name: Continue with warning if some packages failed
+  ansible.builtin.debug:
+    msg: "⚠️  Some packages failed to install. Continuing with available packages."
+  when: results.failed | length > 0 and results.failed | length < (final_package_list | length * packages_generique_fail_threshold)
+
+- name: Fail only if too many packages failed (configurable threshold)
+  ansible.builtin.fail:
+    msg: "🚨 Too many package installations failed ({{ results.failed | length }}/{{ final_package_list | length }}). Check OS compatibility."
+  when:
+    - final_package_list | length > 0
+    - (results.failed | length) >= (final_package_list | length * packages_generique_fail_threshold)
