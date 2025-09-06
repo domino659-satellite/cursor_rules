@@ -23,4 +23,5 @@ global_user_data:
 
 global_additional_packages:
   - locate
-# a chequer
+  # - lvm2
+

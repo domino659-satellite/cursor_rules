@@ -34,8 +34,6 @@ packages_generique_utils:
   - fd-find       # Recherche de fichiers moderne et rapide
   - ripgrep       # Recherche de texte ultra-rapide
   - bat           # Affichage de fichiers avec coloration syntaxique
-  - exa           # Listing de fichiers moderne avec couleurs
-  - fzf           # Recherche floue interactive
   - jq            # Processeur JSON en ligne de commande
 
 # Additional packages not in groups

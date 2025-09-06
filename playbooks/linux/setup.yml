@@ -7,18 +7,18 @@
 
   roles:
     # === SYSTÈME BASE ===
-    # - { role: system_upgrade }
-    # - { role: packages_generique }
-    # - { role: ssh }
-    # - { role: git }
+    - { role: system_upgrade }
+    - { role: packages_generique }
+    - { role: ssh }
+    - { role: git }
 
     # === ZSH ===
     # - { role: nerd_font, when: "'microsoft' not in ansible_kernel" }
     - { role: zsh }
     
     # === OUTILS DE DÉVELOPPEMENT ===
-    # - { role: vim }
+    - { role: vim }
 
     # === UTILISATEUR ===
-    # - { role: admin }
+    - { role: admin }
     - { role: user }
