@@ -43,7 +43,6 @@ roles/system/zsh/
 - **Smart caching**: Performance optimized for large repositories
 - **Powerlevel10k integration**: Seamless prompt display
 
-
 ### Performance Features
 
 - **Intelligent caching**: Git status and completions
