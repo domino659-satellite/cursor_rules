@@ -1,0 +1,19 @@
+---
+# tasks file for nerd_font
+
+- name: Ensure system fonts directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ nerd_fonts_install_dir | default('/usr/share/fonts/nerd-fonts') }}"
+    state: directory
+    mode: '0755'
+
+- name: Download and extract Nerd Font archive
+  become: true
+  ansible.builtin.unarchive:
+    src: "{{ nerd_fonts_font_url }}"
+    dest: "{{ nerd_fonts_install_dir | default('/usr/share/fonts/nerd-fonts') }}"
+    remote_src: true
+    include:
+      - "*.ttf"
+  notify: Refresh system font cache

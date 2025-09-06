@@ -11,7 +11,6 @@
     state: "{{ user_data.state }}"
     shell: "{{ user_data.shell }}"
     update_password: always
-  register: user_result
 
 - name: Copy skel content for existing users
   become: true
@@ -25,13 +24,3 @@
     remote_src: true
   when:
     - user_data.state == "present"
-  register: skel_copy_result
-
-- name: Display user summary
-  ansible.builtin.debug:
-    msg:
-      - "User Management Summary:"
-      - "- User: {{ user_data.name }}"
-      - "- Created/updated: {{ user_result.changed }}"
-      - "- State: {{ user_data.state }}"
-      - "- Skel content copied: {{ skel_copy_result.changed | default(false) }}"

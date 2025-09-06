@@ -8,7 +8,6 @@
     state: present
   loop: "{{ user_data.ssh.authorized_key | default([]) }}"
   when: user_data.ssh.authorized_key is defined
-  register: authorized_keys_result
 
 - name: Create user directories
   ansible.builtin.file:
@@ -21,7 +20,6 @@
     - { path: '.venv', mode: '0755' }
     - { path: '.credentials', mode: '0700' }
   when: user_data.state != 'absent'
-  register: user_directories_result
 
 - name: Create .config/git directory
   ansible.builtin.file:
@@ -40,7 +38,6 @@
     mode: '0644'
   vars:
     user: "{{ user_data }}"
-  register: git_config_primary_result
 
 - name: Configure ZSH specific configuration
   ansible.builtin.template:
@@ -51,7 +48,6 @@
     mode: '0644'
   vars:
     user: "{{ user_data }}"
-  register: zsh_user_config_result
 
 - name: Create primary git repository directory
   ansible.builtin.file:
@@ -60,7 +56,6 @@
     mode: '0755'
     owner: "{{ user_data.name }}"
     group: "{{ user_data.name }}"
-  register: git_repository_primary_result
 
 - name: Create secondary git repository directories
   ansible.builtin.file:
@@ -70,7 +65,6 @@
     owner: "{{ user_data.name }}"
     group: "{{ user_data.name }}"
   loop: "{{ user_data.git_repositories[1:] | default([]) }}"
-  register: git_repository_secondary_result
 
 - name: Create git config files for secondary repositories
   ansible.builtin.copy:
@@ -83,17 +77,3 @@
     group: "{{ user_data.name }}"
     mode: '0644'
   loop: "{{ user_data.git_repositories[1:] | default([]) }}"
-  register: git_config_secondary_result
-
-- name: Display user configuration summary
-  ansible.builtin.debug:
-    msg:
-      - "User Configuration Summary:"
-      - "- User: {{ user_data.name }}"
-      - "- SSH authorized keys added: {{ authorized_keys_result.changed | default(false) }}"
-      - "- User directories created: {{ user_directories_result.changed | default(false) }}"
-      - "- ZSH configured: {{ zsh_user_config_result.changed | default(false) }}"
-      - "- Git configured: {{ git_config_primary_result.changed | default(false) }}"
-      - "- Git secondary configured: {{ git_config_secondary_result.changed | default(false) }}"
-      - "- Primary repository created: {{ git_repository_primary_result.changed | default(false) }}"
-      - "- Secondary repositories created: {{ git_repository_secondary_result.changed | default(false) }}"

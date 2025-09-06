@@ -1,0 +1,7 @@
+---
+# handlers file for nerd_font
+
+- name: Refresh system font cache
+  become: true
+  ansible.builtin.command: fc-cache -f
+  changed_when: false

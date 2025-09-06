@@ -5,7 +5,6 @@
   ansible.builtin.package:
     update_cache: true
     cache_valid_time: "{{ system_upgrade_cache_valid_time }}"
-  register: apt_update_result
 
 - name: Install critical packages
   become: true
@@ -13,25 +12,12 @@
     name: "{{ system_upgrade_critical_packages }}"
     state: latest
   when: system_upgrade_critical_packages | length > 0
-  register: critical_packages_result
 
 - name: Upgrade all system packages
   become: true
   ansible.builtin.package:
     upgrade: true
-  register: system_upgrade_result
 
 - name: Check if reboot is required
   ansible.builtin.stat:
     path: "{{ system_upgrade_reboot_required_file_path }}"
-  register: reboot_required_file
-
-- name: Display update summary
-  ansible.builtin.debug:
-    msg:
-      - "System Update Summary:"
-      - "- Cache updated: {{ apt_update_result.changed | default(false) }}"
-      - "- Critical packages updated: {{ critical_packages_result.changed | default(false) }}"
-      - "- System upgraded: {{ system_upgrade_result.changed | default(false) }}"
-      - "- Reboot required: {{ reboot_required_file.stat.exists }}"
-  when: apt_update_result.changed or critical_packages_result.changed or system_upgrade_result.changed or reboot_required_file.stat.exists

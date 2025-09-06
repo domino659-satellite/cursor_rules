@@ -6,11 +6,3 @@
     name: "{{ git_packages }}"
     state: present
     update_cache: true
-  register: git_install_result
-
-- name: Display Git installation summary
-  ansible.builtin.debug:
-    msg:
-      - "Git Installation Summary:"
-      - "- Packages installed: {{ git_install_result.changed | default(false) }}"
-  when: git_install_result.changed

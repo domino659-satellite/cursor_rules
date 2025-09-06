@@ -17,11 +17,11 @@
     state: "{{ packages_generique_state }}"
     update_cache: "{{ packages_generique_update_cache }}"
     cache_valid_time: "{{ packages_generique_cache_valid_time }}"
-  register: package_results
   failed_when: false  # Continue même si un paquet échoue
   loop: "{{ final_package_list }}"
   when: final_package_list | length > 0
   ignore_errors: true  # Double protection
+  register: package_results
 
 - name: Collect installation results with resilience
   ansible.builtin.set_fact:
