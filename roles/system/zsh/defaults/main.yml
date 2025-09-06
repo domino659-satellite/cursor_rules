@@ -9,6 +9,8 @@ zsh_packages:
   - ccze
   - tmux
   - zoxide
+  # SSH key management
+  - keychain
 
 # Configuration des fichiers
 zsh_config_dir: /etc/zsh

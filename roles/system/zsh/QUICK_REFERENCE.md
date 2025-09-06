@@ -213,10 +213,6 @@ source ~/.config/zsh/.p10k.zsh
 - `~/.config/zsh/git.zsh` - Git integration
 - `~/.config/zsh/syntax-highlighting.zsh` - Syntax highlighting
 
-### Customization
-
-- `~/.config/zsh/user.zsh` - Personal customizations (create if needed)
-
 ## 📚 Documentation
 
 - **[README.md](README.md)** - Complete module overview and configuration

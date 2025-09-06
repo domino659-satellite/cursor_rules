@@ -39,16 +39,6 @@
   vars:
     user: "{{ user_data }}"
 
-- name: Configure ZSH specific configuration
-  ansible.builtin.template:
-    src: user.j2
-    dest: "/home/{{ user_data.name }}/.config/zsh/user.zsh"
-    owner: "{{ user_data.name }}"
-    group: "{{ user_data.name }}"
-    mode: '0644'
-  vars:
-    user: "{{ user_data }}"
-
 - name: Create primary git repository directory
   ansible.builtin.file:
     path: "/home/{{ user_data.name }}/repo_{{ user_data.git_repositories[0].name }}"

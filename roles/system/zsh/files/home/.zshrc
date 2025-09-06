@@ -19,7 +19,17 @@ export PATH="$PATH:$HOME/.local/bin"
 [[ -f ~/.config/zsh/plugins.zsh ]] && source ~/.config/zsh/plugins.zsh
 [[ -f ~/.config/zsh/aliases.zsh ]] && source ~/.config/zsh/aliases.zsh
 [[ -f ~/.config/zsh/git.zsh ]] && source ~/.config/zsh/git.zsh
-[[ -f ~/.config/zsh/user.zsh ]] && source ~/.config/zsh/user.zsh
+
+# -----------------------------------------------------------------------------
+# SSH AGENT
+# -----------------------------------------------------------------------------
+# Start SSH agent if not already running
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [[ ! -f "$SSH_AUTH_SOCK" ]]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
 
 # -----------------------------------------------------------------------------
 # SHELL INTEGRATIONS

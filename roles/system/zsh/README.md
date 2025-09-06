@@ -43,6 +43,7 @@ roles/system/zsh/
 - **Smart caching**: Performance optimized for large repositories
 - **Powerlevel10k integration**: Seamless prompt display
 
+
 ### Performance Features
 
 - **Intelligent caching**: Git status and completions
@@ -75,7 +76,7 @@ $ source ~/.zshrc
 
 ```yaml
 # Deployment targets
-zsh_packages: [zsh, git, curl]  # Required packages
+zsh_packages: [zsh, git, curl, keychain]  # Required packages
 zsh_file_mode: "0644"           # File permissions
 zsh_owner: root                 # File ownership
 zsh_group: root
@@ -97,7 +98,6 @@ POWERLEVEL9K_INSTANT_PROMPT=verbose
 - **Aliases**: Edit `~/.config/zsh/aliases.zsh`
 - **Git settings**: Modify `~/.config/zsh/git.zsh`
 - **Theme**: Configure `~/.config/zsh/.p10k.zsh`
-- **Personal**: Add custom config to `~/.config/zsh/user.zsh`
 
 ## 🔧 Features
 

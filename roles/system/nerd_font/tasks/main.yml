@@ -4,16 +4,28 @@
 - name: Ensure system fonts directory exists
   become: true
   ansible.builtin.file:
-    path: "{{ nerd_fonts_install_dir | default('/usr/share/fonts/nerd-fonts') }}"
+    path: "{{ nerd_font_install_dir }}"
     state: directory
     mode: '0755'
 
 - name: Download and extract Nerd Font archive
   become: true
   ansible.builtin.unarchive:
-    src: "{{ nerd_fonts_font_url }}"
-    dest: "{{ nerd_fonts_install_dir | default('/usr/share/fonts/nerd-fonts') }}"
+    src: "{{ nerd_font_font_url }}"
+    dest: "{{ nerd_font_install_dir }}"
     remote_src: true
     include:
-      - "*.ttf"
+      - "*JetBrainsMono*.ttf"
   notify: Refresh system font cache
+
+- name: Verify JetBrainsMono font installation
+  become: true
+  ansible.builtin.command: fc-list | grep -i jetbrains
+  register: jetbrains_font_check
+  changed_when: false
+  failed_when: false
+
+- name: Display installed JetBrainsMono fonts
+  ansible.builtin.debug:
+    msg: "JetBrainsMono fonts installed: {{ jetbrains_font_check.stdout_lines }}"
+  when: jetbrains_font_check.stdout_lines | length > 0

@@ -11,9 +11,6 @@ global_user_data:
   shell: /bin/zsh
   password: "{{ vault_user_pwd }}"
   ssh:
-    keys:
-      - private_domino659
-      - private_github
     authorized_key: "{{ vault_user_ssh_key | default([]) }}"
   git_repositories:
     - name: domino659
@@ -25,6 +22,5 @@ global_user_data:
 # garder que le principal
 
 global_additional_packages:
-  - keychain
   - locate
 # a chequer

@@ -3,7 +3,6 @@
   hosts: shrine_azure
 
   vars_files:
-    - ../../vault/connection
     - ../../vault/user
 
   roles:
@@ -14,6 +13,7 @@
     # - { role: git }
 
     # === ZSH ===
+    # - { role: nerd_font, when: "'microsoft' not in ansible_kernel" }
     - { role: zsh }
     
     # === OUTILS DE DÉVELOPPEMENT ===

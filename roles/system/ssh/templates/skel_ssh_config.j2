@@ -25,3 +25,9 @@ Host *
     # Network
     TCPKeepAlive yes                            # Keep TCP connection active
     GSSAPIAuthentication no                     # Disable Kerberos auth (faster)
+
+Host    github.com
+        Hostname        github.com
+        User            git
+        IdentityFile    ~/.ssh/
+        Port            22
