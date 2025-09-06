@@ -1,16 +1,2 @@
 ---
 # vars file for zsh
-
-# Fichiers de configuration ZSH
-zsh_config_files:
-  - zgit
-  - zlogout
-  - zremote
-  - zsh-history-search
-  - zshenv
-  - zshrc
-
-# Permissions par défaut
-zsh_file_mode: "0644"
-zsh_owner: root
-zsh_group: root

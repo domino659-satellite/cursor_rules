@@ -1,0 +1,30 @@
+---
+# Host variables for localhost
+
+global_user_data:
+  name: "domino659"
+  comment: Martin Sion
+  groups:
+    - domino659
+    - wheel_no_pswd
+  state: present
+  shell: /bin/zsh
+  password: "{{ vault_user_pwd }}"
+  ssh:
+    keys:
+      - private_domino659
+      - private_github
+    authorized_key: "{{ vault_user_ssh_key | default([]) }}"
+  git_repositories:
+    - name: domino659
+      email: martin@sionfamily.com
+      status: primary
+    - name: msion
+      email: msion@cegid.com
+      status: secondary
+# garder que le principal
+
+global_additional_packages:
+  - keychain
+  - locate
+# a chequer

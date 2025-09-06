@@ -7,13 +7,13 @@
     cache_valid_time: "{{ system_upgrade_cache_valid_time }}"
   register: apt_update_result
 
-- name: Upgrade critical packages
+- name: Install critical packages
   become: true
   ansible.builtin.package:
     name: "{{ system_upgrade_critical_packages }}"
     state: latest
-  register: critical_packages_result
   when: system_upgrade_critical_packages | length > 0
+  register: critical_packages_result
 
 - name: Upgrade all system packages
   become: true

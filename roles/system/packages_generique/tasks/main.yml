@@ -1,10 +1,5 @@
 ---
 # tasks file for packages_generique role - Multi-OS resilient
-- name: Detect OS family
-  ansible.builtin.set_fact:
-    os_family: "{{ ansible_os_family | default('unknown') }}"
-    os_distribution: "{{ ansible_distribution | default('unknown') }}"
-
 - name: Build package list
   ansible.builtin.set_fact:
     final_package_list: >-
@@ -40,7 +35,7 @@
 - name: Display installation summary
   ansible.builtin.debug:
     msg:
-      - "📦 Package Installation Summary ({{ os_family }}/{{ os_distribution }}):"
+      - "📦 Package Installation Summary ({{ ansible_os_family | default('unknown') }}/{{ ansible_distribution | default('unknown') }}):"
       - "- Total packages: {{ final_package_list | length }}"
       - "- Successfully installed: {{ results.success | length }}"
       - "- Failed installations: {{ results.failed | length }}"

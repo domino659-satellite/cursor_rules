@@ -1,108 +1,225 @@
-# 🚀 Référence Rapide ZSH
+# 🚀 ZSH Quick Reference
 
-## ⌨️ Raccourcis Clavier
+## ⌨️ Keyboard Shortcuts
 
 ### Navigation
 
-| Raccourci | Action |
-|-----------|--------|
-| `Ctrl + A` | Début de ligne |
-| `Ctrl + E` | Fin de ligne |
-| `Ctrl + R` | Recherche dans l'historique |
-| `Ctrl + S` | Recherche avant dans l'historique |
-| `Ctrl + Left/Right` | Navigation par mots |
-| `Page Up/Down` | Navigation dans l'historique |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + A` | Beginning of line |
+| `Ctrl + E` | End of line |
+| `Ctrl + R` | Search in history (FZF) |
+| `Ctrl + T` | Fuzzy file finder (FZF) |
+| `Alt + C` | Fuzzy directory navigation (FZF) |
+| `Ctrl + Left/Right` | Navigate by words |
+| `Page Up/Down` | History navigation |
 
-### Sessions (zremote)
+### ZSH Line Editor
 
-| Raccourci | Action |
-|-----------|--------|
-| `Alt + L` | Lister les sessions Tmux existantes |
-| `Alt + T` | Créer une nouvelle session  Tmux |
-| `Alt + A` | Attacher à une session existante|
-| `Alt + D` | Détacher de la session actuelle |
+| Shortcut | Action |
+|----------|--------|
+| `Tab` | Smart completion with FZF |
+| `Ctrl + X, Ctrl + E` | Edit command in editor |
+| `Ctrl + U` | Delete to beginning of line |
+| `Ctrl + K` | Delete to end of line |
+| `Ctrl + W` | Delete previous word |
 
-## 🔧 Commandes Principales
+### Plugin Features
 
-### Système
+| Shortcut | Action |
+|----------|--------|
+| `Double ESC` | Add sudo to command (sudo plugin) |
+| `→` | Accept autosuggestion |
+| `Ctrl + →` | Accept one word of suggestion |
 
-```bash
-get_system_stats          # Statistiques système (cache 3s)
-```
+## 🔧 Main Commands
 
-### Git (zgit)
-
-```bash
-git_super_status         # Statut Git dans le prompt
-update_current_git_vars  # Mettre à jour variables Git
-```
-
-### Historique (zsh-history-search)
+### Directory Navigation
 
 ```bash
-Ctrl + R                 # Recherche avancée
-Ctrl + S                 # Recherche incrémentale
-Alt + H                  # Historique rapide
+z <directory>           # Smart cd with zoxide
+z -              # Go to previous directory
+zi               # Interactive directory selection
 ```
 
-## 📋 Aliases Essentiels
-
-### Navigation et Fichiers
+### Git Integration
 
 ```bash
-ll          # ls -l
-la          # ls -A
-l           # ls -CF
-..          # cd ..
-...         # cd ../..
-c           # clear
+# Git commands from Oh My Zsh plugin
+gst              # git status
+gco              # git checkout  
+gb               # git branch
+glog             # git log --oneline --decorate --graph
+gd               # git diff
+gdc              # git diff --cached
 ```
 
-### Système et Maintenance
+### FZF Integration
 
 ```bash
-update      # sudo apt update
-upgrade     # sudo apt upgrade
+fzf              # Fuzzy finder
+**<Tab>          # Trigger FZF completion
+kill **<Tab>     # Kill process with FZF selection
+ssh **<Tab>      # SSH with FZF host selection
 ```
 
-### Couleurs et Formatage
+## 📋 Essential Aliases
+
+### File Operations
 
 ```bash
-grep        # grep --color=auto
-diff        # diff --color=auto
-ip          # ip --color=auto
+ll              # ls -la --color=auto
+la              # ls -A --color=auto
+l               # ls -CF --color=auto
+..              # cd ..
+...             # cd ../..
+c               # clear -x
 ```
 
-## ⚡ Cache et Performance
-
-### Timeouts
+### Safe Operations
 
 ```bash
-__SYSTEM_CACHE_TIMEOUT=3    # Cache CPU/RAM (secondes)
-__GIT_CACHE_TIMEOUT=5       # Cache Git (secondes)
+cp              # cp --interactive
+mv              # mv --interactive
+rm              # rm --interactive
 ```
 
-### Dossiers de cache
+### Text Processing
 
 ```bash
-~/.cache/zsh/completion      # Cache completion
-~/.zsh/git_cache/           # Cache Git
+cat             # bat (with syntax highlighting)
+grep            # grep --color=auto
+diff            # diff --color=auto
+ip              # ip --color=auto
 ```
 
-## 🧪 Tests Rapides
+### System Information
 
 ```bash
-# Test de syntaxe
-bash -n /etc/zsh/zshrc
-
-# Test de chargement
-zsh -c "source /etc/zsh/zshrc"
-
-# Vérification du cache
-ls -la ~/.cache/zsh/
-ls -la ~/.zsh/git_cache/
+df              # df --human-readable
+du              # du --human-readable
+free            # free --human
+ps              # ps aux
+top             # htop (if available)
 ```
+
+## ⚡ Performance & Caching
+
+### Plugin Performance
+
+```bash
+# Zinit optimization
+zinit cdreplay -q        # Replay cached completions
+
+# Check plugin load times
+zinit times              # Show loading times
+```
+
+### Completion System
+
+```bash
+# Cache locations
+~/.zcompdump            # ZSH completion cache
+~/.cache/fzf/           # FZF cache
+```
+
+### Powerlevel10k
+
+```bash
+p10k configure         # Reconfigure theme
+p10k reload            # Reload configuration
+```
+
+## 🎨 Theme Customization
+
+### Powerlevel10k Configuration
+
+```bash
+# Edit theme settings
+vim ~/.config/zsh/.p10k.zsh
+
+# Key variables
+POWERLEVEL9K_INSTANT_PROMPT=verbose
+POWERLEVEL9K_CONTEXT_TEMPLATE="%F{242}%n@%m%f"
+```
+
+### Git Display
+
+```bash
+# Git status in prompt automatically shows:
+# 🔥 - staged files
+# 📝 - modified files  
+# ❓ - untracked files
+# ✅ - clean repository
+```
+
+## 🔌 Plugin Management
+
+### Zinit Commands
+
+```bash
+zinit update            # Update all plugins
+zinit update <plugin>   # Update specific plugin
+zinit list              # List installed plugins
+zinit delete <plugin>   # Remove plugin
+```
+
+### Plugin Locations
+
+```bash
+~/.local/share/zinit/   # Zinit installation
+~/.config/zsh/          # ZSH configuration files
+```
+
+## 🧪 Troubleshooting
+
+### Debug Commands
+
+```bash
+# Test ZSH configuration
+zsh -n ~/.zshrc         # Syntax check
+
+# Reset completion cache
+rm ~/.zcompdump && exec zsh
+
+# FZF installation check
+fzf --version
+
+# Check Powerlevel10k
+p10k configure
+```
+
+### Common Issues
+
+```bash
+# Slow startup
+zinit times             # Check plugin load times
+
+# Completion not working  
+compinit                # Reinitialize completions
+
+# Theme not loading
+source ~/.config/zsh/.p10k.zsh
+```
+
+## 📚 Configuration Files
+
+### Main Files
+
+- `~/.zshrc` - Main configuration loader
+- `~/.config/zsh/plugins.zsh` - Plugin management (Zinit)
+- `~/.config/zsh/aliases.zsh` - Custom aliases
+- `~/.config/zsh/.p10k.zsh` - Powerlevel10k theme
+- `~/.config/zsh/git.zsh` - Git integration
+- `~/.config/zsh/syntax-highlighting.zsh` - Syntax highlighting
+
+### Customization
+
+- `~/.config/zsh/user.zsh` - Personal customizations (create if needed)
 
 ## 📚 Documentation
 
-- **[README.md](README.md)** : Vue d'ensemble et configuration du module
+- **[README.md](README.md)** - Complete module overview and configuration
+- **[Powerlevel10k](https://github.com/romkatv/powerlevel10k)** - Theme documentation
+- **[FZF](https://github.com/junegunn/fzf)** - Fuzzy finder documentation
+- **[Zinit](https://github.com/zdharma-continuum/zinit)** - Plugin manager documentation

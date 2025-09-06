@@ -1,0 +1,101 @@
+# -*- coding: utf-8 -*-
+# ZSH Auto-Detection Functions (Optimized)
+# Functions for automatically detecting development environments
+
+# Configuration
+AUTO_DETECT_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-auto-detect"
+AUTO_DETECT_CACHE_TTL=3600  # 1 hour cache
+AUTO_DETECT_QUIET=${AUTO_DETECT_QUIET:-false}
+
+# Create cache directory
+mkdir -p "$AUTO_DETECT_CACHE_DIR"
+
+# Cache management
+_cache_is_valid() {
+    local cache_file="$1"
+    [[ -f "$cache_file" ]] && [[ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -lt $AUTO_DETECT_CACHE_TTL ]]
+}
+
+# Python Virtual Environments Auto-Detection (Enhanced)
+_auto_detect_venvs() {
+    local cache_file="$AUTO_DETECT_CACHE_DIR/venvs"
+    local venv_dirs=("$HOME/.venv" "$HOME/.virtualenvs" "$HOME/venvs" "$HOME/.local/share/virtualenvs")
+    local detected_venvs=()
+    
+    # Check cache first
+    if _cache_is_valid "$cache_file"; then
+        source "$cache_file"
+        return 0
+    fi
+    
+    # Scan for virtual environments
+    for venv_dir in "${venv_dirs[@]}"; do
+        [[ -d "$venv_dir" ]] || continue
+        
+        # Find all potential venv directories
+        while IFS= read -r -d '' venv_path; do
+            local venv_name=$(basename "$venv_path")
+            
+            # Check for different venv types and structures
+            local activate_script=""
+            if [[ -f "${venv_path}bin/activate" ]]; then
+                activate_script="${venv_path}bin/activate"
+            elif [[ -f "${venv_path}Scripts/activate" ]]; then
+                activate_script="${venv_path}Scripts/activate"
+            elif [[ -f "${venv_path}activate" ]]; then
+                activate_script="${venv_path}activate"
+            elif [[ -d "${venv_path}bin" ]] || [[ -d "${venv_path}Scripts" ]]; then
+                # Directory looks like a venv but no activate script found
+                # Try to find activate script in subdirectories
+                activate_script=$(find "$venv_path" -name "activate" -type f 2>/dev/null | head -1)
+            fi
+            
+            if [[ -n "$activate_script" ]]; then
+                detected_venvs+=("$venv_name:$venv_path")
+            fi
+        done < <(find "$venv_dir" -maxdepth 2 -type d -print0 2>/dev/null)
+    done
+    
+    # Cache results
+    {
+        echo "# Cached virtual environments - $(date)"
+        for venv in "${detected_venvs[@]}"; do
+            local name="${venv%%:*}"
+            local path="${venv##*:}"
+            echo "# $name:$path"
+        done
+    } > "$cache_file"
+    
+    # Display results
+    if [[ ${#detected_venvs[@]} -gt 0 ]] && [[ "$AUTO_DETECT_QUIET" != "true" ]]; then
+        echo "🐍 Virtual environments detected: ${#detected_venvs[@]}"
+        for venv in "${detected_venvs[@]}"; do
+            echo "   + ${venv%%:*}"
+        done
+    fi
+}
+
+# List available virtual environments
+list_venv() {
+    local venvs=()
+    
+    # Find venv directories
+    for dir in "$HOME/.venv"/*; do
+        [[ -d "$dir" ]] && [[ -f "$dir/bin/activate" ]] && venvs+=("$(basename "$dir")")
+    done
+    
+    # Display if found
+    if [[ ${#venvs[@]} -gt 0 ]]; then
+        echo "🐍 Available Virtual Environments: ${venvs[*]}"
+    fi
+}
+
+# Cache cleanup function
+_cleanup_auto_detect_cache() {
+    find "$AUTO_DETECT_CACHE_DIR" -type f -mtime +7 -delete 2>/dev/null
+}
+
+# Execute auto-detection functions (with error handling)
+_auto_detect_venvs 2>/dev/null || true
+list_venv 2>/dev/null || true
+_cleanup_auto_detect_cache 2>/dev/null || true

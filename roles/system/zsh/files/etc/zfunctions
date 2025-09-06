@@ -1,0 +1,117 @@
+# ─── ZSH SYSTEM FUNCTIONS ─────────────────────────────────────────────────────
+
+# Essential system functions for interactive shells
+# This file provides useful system management functions
+
+# ─── SYSTEM DIAGNOSTIC FUNCTIONS ────────────────────────────────────────────
+
+# System health check
+syshealth() {
+    echo "=== System Health Check ==="
+    echo "Uptime: $(uptime)"
+    echo "Memory: $(free -h | grep Mem)"
+    echo "Disk: $(df -h / | tail -1)"
+    echo "Load: $(cat /proc/loadavg)"
+}
+
+# Network connectivity test
+netcheck() {
+    echo "=== Network Check ==="
+    ping -c 1 8.8.8.8 >/dev/null 2>&1 && echo "✅ Internet: OK" || echo "❌ Internet: FAIL"
+    ping -c 1 1.1.1.1 >/dev/null 2>&1 && echo "✅ DNS: OK" || echo "❌ DNS: FAIL"
+    curl -s --max-time 5 https://www.google.com >/dev/null && echo "✅ HTTPS: OK" || echo "❌ HTTPS: FAIL"
+}
+
+# ─── MAINTENANCE FUNCTIONS ──────────────────────────────────────────────────
+
+# Clean system temporary files (universal package manager support)
+cleanup() {
+    echo "=== System Cleanup ==="
+    
+    # Detect package manager
+    local pkg_manager=""
+    for cmd in apt yum dnf pacman zypper; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            pkg_manager="$cmd"
+            break
+        fi
+    done
+    
+    case "$pkg_manager" in
+        apt)
+            sudo apt autoremove -y 2>/dev/null || echo "No apt packages to remove"
+            sudo apt autoclean 2>/dev/null || echo "No apt cache to clean"
+            ;;
+        yum)
+            sudo yum clean all 2>/dev/null || echo "No yum cache to clean"
+            ;;
+        dnf)
+            sudo dnf clean all 2>/dev/null || echo "No dnf cache to clean"
+            ;;
+        pacman)
+            sudo pacman -Sc --noconfirm 2>/dev/null || echo "No pacman cache to clean"
+            ;;
+        zypper)
+            sudo zypper clean --all 2>/dev/null || echo "No zypper cache to clean"
+            ;;
+        *)
+            echo "No supported package manager found"
+            ;;
+    esac
+    
+    find /tmp -type f -atime +7 -delete 2>/dev/null && echo "✅ Temp files cleaned"
+    find ~/.cache -type f -atime +30 -delete 2>/dev/null && echo "✅ Cache cleaned"
+}
+
+# Update system packages (universal package manager support)
+sysupdate() {
+    echo "=== System Update ==="
+    
+    # Detect package manager
+    local pkg_manager=""
+    for cmd in apt yum dnf pacman zypper; do
+        if command -v "$cmd" >/dev/null 2>&1; then
+            pkg_manager="$cmd"
+            break
+        fi
+    done
+    
+    case "$pkg_manager" in
+        apt)
+            sudo apt update && sudo apt upgrade -y
+            sudo apt autoremove -y
+            sudo apt autoclean
+            ;;
+        yum)
+            sudo yum update -y
+            sudo yum clean all
+            ;;
+        dnf)
+            sudo dnf update -y
+            sudo dnf clean all
+            ;;
+        pacman)
+            sudo pacman -Syu --noconfirm
+            sudo pacman -Sc --noconfirm
+            ;;
+        zypper)
+            sudo zypper update -y
+            sudo zypper clean --all
+            ;;
+        *)
+            echo "❌ No supported package manager found"
+            ;;
+    esac
+}
+
+# ─── MONITORING FUNCTIONS ───────────────────────────────────────────────────
+
+# Process monitor with custom format
+psmon() {
+    ps aux --sort=-%cpu | head -10 | awk '{printf "%-8s %-6s %-6s %-8s %s\n", $1, $2, $3, $4, $11}'
+}
+
+# Memory usage by process
+memusage() {
+    ps aux --sort=-%mem | head -10 | awk '{printf "%-8s %-6s %-6s %-8s %s\n", $1, $2, $4, $6, $11}'
+}

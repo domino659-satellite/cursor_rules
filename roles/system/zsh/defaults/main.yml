@@ -3,15 +3,12 @@
 
 # Liste des packages ZSH à installer
 zsh_packages:
-  # ZSH et plugins
+  # ZSH
   - zsh
-  - zsh-autosuggestions
-  - zsh-syntax-highlighting
   # Outils complémentaires
   - ccze
-  - command-not-found
-  - fzf
   - tmux
+  - zoxide
 
 # Configuration des fichiers
 zsh_config_dir: /etc/zsh

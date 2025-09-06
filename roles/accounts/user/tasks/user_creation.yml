@@ -10,7 +10,6 @@
     password: "{{ user_data.password | password_hash('sha512') }}"
     state: "{{ user_data.state }}"
     shell: "{{ user_data.shell }}"
-    skeleton: /etc/skel
     update_password: always
   register: user_result
 
@@ -24,7 +23,6 @@
     mode: preserve
     backup: true
     remote_src: true
-    force: false
   when:
     - user_data.state == "present"
   register: skel_copy_result

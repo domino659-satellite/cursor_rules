@@ -18,9 +18,40 @@
     group: root
   register: zsh_config_result
 
+- name: Copy ZSH configuration to skel
+  ansible.builtin.copy:
+    src: files/home/
+    dest: "/etc/skel/"
+    owner: root
+    group: root
+    mode: '0644'
+    directory_mode: '0755'
+  register: zsh_skel_config_result
+
+- name: Copy ZSH configuration to root home
+  become: true
+  ansible.builtin.copy:
+    src: files/home/
+    dest: "/root/"
+    owner: root
+    group: root
+    mode: '0644'
+    directory_mode: '0755'
+  register: zsh_root_config_result
+
+- name: Set root shell to zsh
+  become: true
+  ansible.builtin.user:
+    name: root
+    shell: /bin/zsh
+  register: root_shell_result
+
 - name: Display ZSH installation summary
   ansible.builtin.debug:
     msg:
-      - "ZSH Installation Summary:"
+      - "ZSH Installation Summary (Clean Setup):"
       - "- Packages installed: {{ zsh_install_result.changed | default(false) }}"
       - "- Configuration copied: {{ zsh_config_result.changed | default(false) }}"
+      - "- ZSH configuration in skel: {{ zsh_skel_config_result.changed | default(false) }}"
+      - "- Root ZSH configuration: {{ zsh_root_config_result.changed | default(false) }}"
+      - "- Root shell set to zsh: {{ root_shell_result.changed | default(false) }}"

@@ -1,125 +1,31 @@
-# ─── ZSH INTELLIGENT LOGOUT ──────────────────────────────────────────────────
+# ─── ZSH SECURITY LOGOUT ─────────────────────────────────────────────────────
 
-# Enhanced logout with security, backup and customization
-# This file provides intelligent terminal cleanup and session management
-
-# ─── CONFIGURATION ────────────────────────────────────────────────────────────
-
-# Enable/disable features
-(( ! ${+ZSH_LOGOUT_SECURITY} )) && typeset -g ZSH_LOGOUT_SECURITY=1    # Security cleanup
-(( ! ${+ZSH_LOGOUT_BACKUP} )) && typeset -g ZSH_LOGOUT_BACKUP=1         # Session backup
-(( ! ${+ZSH_LOGOUT_CUSTOM} )) && typeset -g ZSH_LOGOUT_CUSTOM=1         # Custom messages
+# Optimized logout with essential security cleanup
+# This file provides intelligent terminal cleanup for security
 
 # ─── SECURITY CLEANUP ───────────────────────────────────────────────────────
 
 # Clean up sensitive variables and connections
 _security_cleanup() {
-    if (( $ZSH_LOGOUT_SECURITY )); then
-        # Clear sensitive environment variables
-        unset SSH_AUTH_SOCK SSH_AGENT_PID SSH_CLIENT SSH_CONNECTION
-        unset GPG_AGENT_INFO GNUPGHOME
-        unset DOCKER_HOST DOCKER_TLS_VERIFY DOCKER_CERT_PATH
-        
-        # Clear temporary variables
-        unset TMPDIR TEMP TMP
-        
-        # Kill background processes if any
-        local bg_jobs=$(jobs -p 2>/dev/null)
-        if [[ -n "$bg_jobs" ]]; then
-            echo "Stopping background jobs..."
-            kill $bg_jobs 2>/dev/null || true
-        fi
-        
-        # Close any open file descriptors
-        exec 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&- 2>/dev/null || true
+    # Clear sensitive environment variables
+    unset SSH_AUTH_SOCK SSH_AGENT_PID SSH_CLIENT SSH_CONNECTION
+    unset GPG_AGENT_INFO GNUPGHOME
+    unset DOCKER_HOST DOCKER_TLS_VERIFY DOCKER_CERT_PATH
+    
+    # Clear temporary variables
+    unset TMPDIR TEMP TMP
+    
+    # Kill background processes if any
+    local bg_jobs=$(jobs -p 2>/dev/null)
+    if [[ -n "$bg_jobs" ]]; then
+        kill $bg_jobs 2>/dev/null || true
     fi
-}
-
-# ─── SESSION BACKUP ──────────────────────────────────────────────────────────
-
-# Backup session state and history
-_session_backup() {
-    if (( $ZSH_LOGOUT_BACKUP )); then
-        local backup_dir="${HOME}/.zsh_sessions"
-        local session_file="${backup_dir}/session_$(date +%Y%m%d_%H%M%S).log"
-        
-        # Create backup directory if it doesn't exist
-        [[ ! -d "$backup_dir" ]] && mkdir -p "$backup_dir"
-        
-        # Save current session info
-        {
-            echo "=== ZSH Session Backup ==="
-            echo "Date: $(date)"
-            echo "User: ${USER:-unknown}"
-            echo "Host: ${HOSTNAME:-unknown}"
-            echo "Directory: $(pwd)"
-            echo "--- Recent History ---"
-            fc -l -10 2>/dev/null || echo "No history available"
-        } > "$session_file" 2>/dev/null
-        
-        # Keep only last 10 backup files
-        ls -t "$backup_dir"/session_*.log 2>/dev/null | tail -n +11 | xargs rm -f 2>/dev/null || true
-    fi
-}
-
-# ─── CUSTOM MESSAGES ────────────────────────────────────────────────────────
-
-# Display custom logout messages
-_custom_messages() {
-    if (( $ZSH_LOGOUT_CUSTOM )); then
-        # Random goodbye messages
-        local messages=(
-            "👋 Goodbye! Thanks for using ZSH!"
-            "🚀 Session completed successfully!"
-            "✨ Hope you had a productive session!"
-            "🌟 See you next time!"
-            "🎯 Great work today!"
-        )
-        
-        local random_msg="${messages[$((RANDOM % ${#messages[@]} + 1))]}"
-        echo "$random_msg"
-        
-        # Time-based messages
-        local hour=$(date +%H)
-        if (( hour >= 22 || hour <= 6 )); then
-            echo "🌙 Good night! Don't forget to rest."
-        elif (( hour >= 18 )); then
-            echo "🌆 Good evening! Time to unwind."
-        elif (( hour >= 12 )); then
-            echo "☀️ Good afternoon! Keep up the good work."
-        else
-            echo "🌅 Good morning! Have a great day ahead."
-        fi
-    fi
-}
-
-# ─── MAIN LOGOUT FUNCTION ────────────────────────────────────────────────────
-
-# Enhanced logout with all features
-enhanced_logout() {
-    # Only run in interactive terminals
-    if [[ -t 0 ]] && [[ -t 1 ]]; then
-        echo
-        echo "╭─ ZSH Enhanced Logout ──────────────────────────────────────────╮"
-        
-        # Run all logout features
-        _security_cleanup
-        _session_backup
-        _custom_messages
-        
-        echo "╰─────────────────────────────────────────────────────────────────╯"
-        echo
-        
-        # Clear  if not in multiplexer
-        if [[ -z "$STY" ]] && [[ -z "$TMUX" ]]; then
-            if command -v clear >/dev/null 2>&1; then
-                clear 2>/dev/null || true
-            fi
-        fi
-    fi
+    
+    # Close any open file descriptors
+    exec 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&- 2>/dev/null || true
 }
 
 # ─── EXECUTION ──────────────────────────────────────────────────────────────
 
-# Run enhanced logout
-enhanced_logout
+# Run security cleanup on logout
+_security_cleanup

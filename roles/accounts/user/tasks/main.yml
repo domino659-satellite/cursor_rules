@@ -1,11 +1,16 @@
 ---
 # main tasks file for user role
-
-- name: Include wheel setup tasks
-  ansible.builtin.include_tasks: wheel_setup.yml
-
 - name: Include user creation tasks
   ansible.builtin.include_tasks: user_creation.yml
+  register: user_creation_result
 
 - name: Import user configuration tasks
   ansible.builtin.include_tasks: user_configuration.yml
+  register: user_configuration_result
+
+- name: Display user role summary
+  ansible.builtin.debug:
+    msg:
+      - "User Role Summary:"
+      - "- User creation completed: {{ user_creation_result is defined }}"
+      - "- User configuration completed: {{ user_configuration_result is defined }}"

@@ -1,0 +1,54 @@
+---
+# main tasks file for admin role
+
+- name: Create Group wheel
+  become: true
+  ansible.builtin.group:
+    name: wheel
+    gid: 500
+    state: present
+  register: wheel_group_result
+
+- name: Create Group wheel_no_pswd
+  become: true
+  ansible.builtin.group:
+    name: wheel_no_pswd
+    gid: 501
+    state: present
+  register: wheel_no_pswd_group_result
+
+- name: Set sudo for wheel
+  become: true
+  ansible.builtin.copy:
+    content: "%wheel ALL=(ALL:ALL) ALL"
+    dest: /etc/sudoers.d/wheel
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
+  register: wheel_sudo_result
+
+- name: Set sudo without password for wheel_no_pswd
+  become: true
+  ansible.builtin.copy:
+    content: "%wheel_no_pswd ALL=(ALL:ALL) NOPASSWD:ALL"
+    dest: /etc/sudoers.d/wheel_no_pswd
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
+  register: wheel_no_pswd_sudo_result
+
+- name: Disable sudo admin success message
+  become: true
+  ansible.builtin.lineinfile:
+    path: "/etc/sudoers"
+    line: "Defaults !tty_tickets"
+    validate: 'visudo -cf %s'
+  register: disable_sudo_admin_success_message_result
+
+- name: Display admin configuration summary
+  ansible.builtin.debug:
+    msg:
+      - "Admin Configuration Summary:"
+      - "- Wheel group created: {{ wheel_group_result.changed | default(false) }}"
+      - "- Wheel no password group created: {{ wheel_no_pswd_group_result.changed | default(false) }}"
+      - "- Wheel sudo configured: {{ wheel_sudo_result.changed | default(false) }}"
+      - "- Wheel no password sudo configured: {{ wheel_no_pswd_sudo_result.changed | default(false) }}"
+      - "- Sudo admin success message disabled: {{ disable_sudo_admin_success_message_result.changed | default(false) }}"

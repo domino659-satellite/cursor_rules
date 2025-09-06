@@ -1,0 +1,8 @@
+# ─── ZSH LOGIN CONFIGURATION ─────────────────────────────────────────────────
+
+# Login-specific configuration
+# This file is sourced only once during login
+
+# Autorise les autres utilisateurs à envoyer des messages (ex: via `write` ou `wall`)
+# en rendant le terminal actuel écrivable (utile uniquement dans des environnements multi-utilisateurs).
+mesg y

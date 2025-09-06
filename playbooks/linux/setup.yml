@@ -10,12 +10,15 @@
     # === SYSTÈME BASE ===
     # - { role: system_upgrade }
     # - { role: packages_generique }
-    - { role: zsh }
     # - { role: ssh }
-
-    # === OUTILS DE DÉVELOPPEMENT ===
     # - { role: git }
+
+    # === ZSH ===
+    - { role: zsh }
+    
+    # === OUTILS DE DÉVELOPPEMENT ===
     # - { role: vim }
 
     # === UTILISATEUR ===
-    # - { role: user }
+    # - { role: admin }
+    - { role: user }

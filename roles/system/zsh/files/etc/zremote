@@ -171,8 +171,13 @@ zle_attach_execute() {
     fi
 }
 
-# Register hook
-add-zsh-hook precmd zle_attach_execute
+# Register hook (only if add-zsh-hook is available)
+if command -v add-zsh-hook >/dev/null 2>&1; then
+    add-zsh-hook precmd zle_attach_execute
+else
+    # Fallback: add to precmd_functions array
+    precmd_functions+=(zle_attach_execute)
+fi
 
 # ─── INITIALIZATION ──────────────────────────────────────────────────────────
 setup_remote_shortcuts
